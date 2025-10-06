@@ -1,0 +1,14 @@
+package com.schoolers.enums;
+
+public enum FailureReason {
+    INVALID_CREDENTIALS,
+    INVALID_SIGNATURE,
+    EXPIRED_CHALLENGE,
+    USER_NOT_FOUND,
+    USER_INACTIVE,
+    BIOMETRIC_NOT_ENABLED,
+    DEVICE_NOT_REGISTERED,
+    ACCOUNT_LOCKED,
+    RATE_LIMITED,
+    INVALID_TOKEN
+}
