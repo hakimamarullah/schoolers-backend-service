@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "schedules", indexes = {
         @Index(name = "idx_classroom_day", columnList = "classroom_id, day_of_week"),
@@ -48,10 +50,10 @@ public class Schedule extends BaseEntity {
     private DayOfWeek dayOfWeek;
 
     @Column(nullable = false)
-    private java.time.LocalTime startTime;
+    private LocalTime startTime;
 
     @Column(nullable = false)
-    private java.time.LocalTime endTime;
+    private LocalTime endTime;
 
     private String room;
 
