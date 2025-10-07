@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
         })
 @Setter
 @Getter
+@RegisterReflection
 public class StudentAttendance extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

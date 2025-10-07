@@ -13,6 +13,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
 @Table(name = "auth_attempts", indexes = {
@@ -21,6 +22,7 @@ import lombok.Setter;
 })
 @Setter
 @Getter
+@RegisterReflection
 public class AuthAttempt extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

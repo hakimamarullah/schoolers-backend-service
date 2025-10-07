@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
 @Table(name = "schedules", indexes = {
@@ -23,6 +24,7 @@ import lombok.Setter;
 })
 @Setter
 @Getter
+@RegisterReflection
 public class Schedule extends BaseEntity {
 
     @Id

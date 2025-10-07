@@ -19,6 +19,7 @@ import com.schoolers.service.IFileStorageService;
 import com.schoolers.service.IUserRegistrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@RegisterReflectionForBinding({
+        UserRegistrationResponse.class,
+        RegisterStudentRequest.class,
+        RegisterStaffRequest.class,
+})
 public class UserRegistrationService implements IUserRegistrationService {
 
     private final UserRepository userRepository;

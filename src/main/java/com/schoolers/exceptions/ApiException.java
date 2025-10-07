@@ -1,8 +1,10 @@
 package com.schoolers.exceptions;
 
 import lombok.Getter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Getter
+@RegisterReflection
 public class ApiException extends RuntimeException {
 
     protected int httpCode;

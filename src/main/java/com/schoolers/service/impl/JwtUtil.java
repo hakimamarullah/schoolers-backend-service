@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -52,11 +53,11 @@ public class JwtUtil implements IJwtUtil {
             Jwt jwt = jwtDecoder.decode(token);
             Instant expiresAt = jwt.getExpiresAt();
             if (!Objects.isNull(expiresAt) && expiresAt.isBefore(Instant.now())) {
-                return null;
+                return Collections.emptyMap();
             }
             return jwt.getClaims();
         } catch (JwtException e) {
-            return null;
+            return Collections.emptyMap();
         }
     }
 
@@ -89,7 +90,6 @@ public class JwtUtil implements IJwtUtil {
             Instant expiresAt = jwt.getExpiresAt();
             return expiresAt == null || expiresAt.isBefore(Instant.now());
         } catch (JwtException e) {
-            // if decoding fails, treat as expired/invalid
             return true;
         }
     }

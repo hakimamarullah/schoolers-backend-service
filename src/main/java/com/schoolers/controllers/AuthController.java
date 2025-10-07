@@ -8,6 +8,7 @@ import com.schoolers.dto.request.BiometricRegistrationRequest;
 import com.schoolers.dto.request.LoginRequest;
 import com.schoolers.dto.response.AuthResponse;
 import com.schoolers.dto.response.BiometricChallengeResponse;
+import com.schoolers.dto.response.BiometricRegistrationResponse;
 import com.schoolers.models.BiometricCredential;
 import com.schoolers.service.IAuthService;
 import com.schoolers.utils.RequestInfoUtils;
@@ -81,7 +82,7 @@ public class AuthController {
      * Register new biometric credential (requires authentication)
      */
     @PostMapping("/biometric/register")
-    public ResponseEntity<ApiResponse<Long>> registerBiometric(
+    public ResponseEntity<ApiResponse<BiometricRegistrationResponse>> registerBiometric(
             @Valid @RequestBody BiometricRegistrationRequest request,
             Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());

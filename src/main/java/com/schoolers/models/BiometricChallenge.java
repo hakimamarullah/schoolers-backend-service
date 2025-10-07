@@ -15,16 +15,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "biometric_challenges", indexes = {
         @Index(name = "idx_challenge_token", columnList = "challenge_token"),
-        @Index(name = "idx_created_at", columnList = "created_at")
+        @Index(name = "idx_created_date", columnList = "created_date")
 })
 @Setter
 @Getter
+@RegisterReflection
 public class BiometricChallenge extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,9 +46,6 @@ public class BiometricChallenge extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChallengeStatus status = ChallengeStatus.PENDING;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;

@@ -14,11 +14,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
 @Table(name = "assignment_resources")
 @Setter
 @Getter
+@RegisterReflection
 public class AssignmentResource extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

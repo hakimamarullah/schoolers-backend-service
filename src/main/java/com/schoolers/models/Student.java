@@ -12,11 +12,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
 @Table(name = "students")
 @Setter
 @Getter
+@RegisterReflection
 public class Student extends BaseEntity {
 
     @Id

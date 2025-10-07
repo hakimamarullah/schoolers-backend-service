@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 })
 @Setter
 @Getter
+@RegisterReflection
 public class AuthSession extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

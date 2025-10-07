@@ -7,6 +7,7 @@ import com.schoolers.dto.response.SimpleClassroomInfo;
 import com.schoolers.repository.ClassroomRepository;
 import com.schoolers.service.IClassroomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@RegisterReflectionForBinding({
+        SimpleClassroomInfo.class
+})
 public class ClassroomService implements IClassroomService {
 
     private final ClassroomRepository classroomRepository;

@@ -12,12 +12,14 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
 @Table(name = "classroom_teachers",
         uniqueConstraints = @UniqueConstraint(columnNames = {"classroom_id", "subject_id", "teacher_id"}))
 @Setter
 @Getter
+@RegisterReflection
 public class ClassroomTeacher extends BaseEntity {
 
     @Id

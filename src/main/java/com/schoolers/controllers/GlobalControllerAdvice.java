@@ -38,7 +38,7 @@ public class GlobalControllerAdvice {
     private final ObjectMapper mapper;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         log.error("[INVALID ARGUMENTS]: {}", ex.getMessage(), ex);
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -58,7 +58,7 @@ public class GlobalControllerAdvice {
         log.error("[INTERNAL SERVER ERROR]: {}", ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(500);
-        response.setMessage(suppressMessage(ex.getMessage()));
+        response.setMessage("Something went wrong on our side");
 
         String causeClassName = Optional.ofNullable(ex.getCause())
                 .map(Throwable::getClass)
@@ -73,7 +73,7 @@ public class GlobalControllerAdvice {
         log.error("[MISSING REQUEST BODY]: {}", ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage(ex.getMessage());
+        response.setMessage("Something went wrong on our side");
 
         String causeClassName = Optional.ofNullable(ex.getCause())
                 .map(Throwable::getClass)
@@ -108,7 +108,7 @@ public class GlobalControllerAdvice {
     public ResponseEntity<ApiResponse<String>> missingServletRequestParameterException(MissingServletRequestParameterException ex) {
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage(ex.getMessage());
+        response.setMessage("Something went wrong.");
         response.setData(ex.getParameterName());
 
         return response.toResponseEntity();
@@ -120,7 +120,7 @@ public class GlobalControllerAdvice {
         log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage(ex.getMessage());
+        response.setMessage("Failed to process data");
         response.setData(ex.getClass().getCanonicalName());
 
         return response.toResponseEntity();

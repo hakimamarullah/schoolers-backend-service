@@ -8,11 +8,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
 @Table(name = "subjects")
 @Setter
 @Getter
+@RegisterReflection
 public class Subject extends BaseEntity {
 
     @Id

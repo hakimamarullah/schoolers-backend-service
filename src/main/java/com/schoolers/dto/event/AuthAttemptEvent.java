@@ -16,4 +16,5 @@ public class AuthAttemptEvent {
     private final FailureReason failureReason;
     private final String ipAddress;
     private final String userAgent;
+    private final String deviceId;
 }

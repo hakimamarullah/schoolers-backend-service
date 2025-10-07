@@ -31,6 +31,7 @@ public class AuthAttemptListener {
         attempt.setFailureReason(event.getFailureReason());
         attempt.setIpAddress(event.getIpAddress());
         attempt.setUserAgent(event.getUserAgent());
+        attempt.setDeviceId(event.getDeviceId());
         authAttemptRepository.save(attempt);
         log.info("Auth attempt saved: {}", attempt.getId());
     }

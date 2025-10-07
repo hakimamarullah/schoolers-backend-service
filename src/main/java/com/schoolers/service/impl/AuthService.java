@@ -9,6 +9,7 @@ import com.schoolers.dto.request.BiometricRegistrationRequest;
 import com.schoolers.dto.request.LoginRequest;
 import com.schoolers.dto.response.AuthResponse;
 import com.schoolers.dto.response.BiometricChallengeResponse;
+import com.schoolers.dto.response.BiometricRegistrationResponse;
 import com.schoolers.dto.response.UserInfo;
 import com.schoolers.enums.AuthMethod;
 import com.schoolers.enums.ChallengeStatus;
@@ -16,7 +17,6 @@ import com.schoolers.enums.FailureReason;
 import com.schoolers.enums.UserRole;
 import com.schoolers.exceptions.DataNotFoundException;
 import com.schoolers.exceptions.DuplicateDataException;
-import com.schoolers.exceptions.SignatureException;
 import com.schoolers.exceptions.TooManyAttempt;
 import com.schoolers.models.AuthSession;
 import com.schoolers.models.BiometricChallenge;
@@ -32,6 +32,7 @@ import com.schoolers.service.IAuthService;
 import com.schoolers.utils.SignatureUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.repository.Modifying;
@@ -48,6 +49,29 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@RegisterReflectionForBinding({
+        AuthSession.class,
+        BiometricChallenge.class,
+        BiometricCredential.class,
+        User.class,
+        BiometricAuthCompleteRequest.class,
+        ApiResponse.class,
+        AuthAttemptEvent.class,
+        StudentClassroomInfo.class,
+        BiometricAuthCompleteRequest.class,
+        BiometricAuthInitRequest.class,
+        BiometricRegistrationRequest.class,
+        LoginRequest.class,
+        AuthResponse.class,
+        BiometricChallengeResponse.class,
+        UserInfo.class,
+        AuthMethod.class,
+        ChallengeStatus.class,
+        FailureReason.class,
+        UserRole.class,
+        BiometricRegistrationResponse.class
+
+})
 public class AuthService implements IAuthService {
 
     public static final String USER_NOT_FOUND = "User not found";
@@ -74,6 +98,7 @@ public class AuthService implements IAuthService {
 
     @Value("${school.name:-Unknown}")
     private String schoolName;
+
     @Transactional
     @Override
     public ApiResponse<AuthResponse> login(LoginRequest payload) {
@@ -82,31 +107,36 @@ public class AuthService implements IAuthService {
         // Check rate limiting
         checkRateLimit(payload.getLoginId(), ipAddress);
 
+        final var authAttemptEvent = AuthAttemptEvent.builder()
+                .loginId(payload.getLoginId())
+                .ipAddress(ipAddress)
+                .method(AuthMethod.PASSWORD)
+                .successful(false)
+                .userAgent(payload.getUserAgent())
+                .deviceId(payload.getDeviceId());
         // Find user
         User user = userRepository.findByLoginId(payload.getLoginId())
                 .orElseThrow(() -> {
-                    logFailedAttempt(payload.getLoginId(), null, AuthMethod.PASSWORD,
-                            FailureReason.USER_NOT_FOUND, ipAddress, payload.getUserAgent());
+                   logAuthAttempt(authAttemptEvent.failureReason(FailureReason.USER_NOT_FOUND).build());
                     return new BadCredentialsException("Invalid credentials");
                 });
 
+        authAttemptEvent.userId(user.getId());
         // Check if user is active
         if (Boolean.FALSE.equals(user.getActive())) {
-            logFailedAttempt(payload.getLoginId(), user.getId(), AuthMethod.PASSWORD,
-                    FailureReason.USER_INACTIVE, ipAddress, payload.getUserAgent());
+            logAuthAttempt(authAttemptEvent.failureReason(FailureReason.USER_INACTIVE).build());
             throw new BadCredentialsException("User account is inactive");
         }
 
         // Verify password
         if (!passwordEncoder.matches(payload.getPassword(), user.getPassword())) {
-            logFailedAttempt(payload.getLoginId(), user.getId(), AuthMethod.PASSWORD,
-                    FailureReason.INVALID_CREDENTIALS, ipAddress, payload.getUserAgent());
+            authAttemptEvent.failureReason(FailureReason.INVALID_CREDENTIALS);
+            logAuthAttempt(authAttemptEvent.build());
             throw new BadCredentialsException("Invalid credentials");
         }
 
         // Successful authentication
-        logSuccessfulAttempt(payload.getLoginId(), user.getId(), AuthMethod.PASSWORD,
-                ipAddress, payload.getUserAgent());
+        logAuthAttempt(authAttemptEvent.successful(true).build());
 
         log.info("User {} logged in successfully via PASSWORD", payload.getLoginId());
 
@@ -189,7 +219,7 @@ public class AuthService implements IAuthService {
         // Find challenge
         BiometricChallenge challenge = biometricChallengeRepository
                 .findByChallengeToken(request.getChallengeToken())
-                .orElseThrow(() -> new RuntimeException("Invalid challenge token"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid challenge token"));
 
         // Check if challenge is still pending
         if (challenge.getStatus() != ChallengeStatus.PENDING) {
@@ -214,6 +244,12 @@ public class AuthService implements IAuthService {
                 credential.getAlgorithm()
         );
 
+        final var authAttemptEvent = AuthAttemptEvent.builder()
+                .ipAddress(ipAddress)
+                .method(AuthMethod.BIOMETRIC)
+                .successful(false)
+                .userAgent(request.getUserAgent())
+                .deviceId(request.getDeviceId());
         if (!isValid) {
             // Mark challenge as failed
             challenge.setStatus(ChallengeStatus.FAILED);
@@ -230,10 +266,10 @@ public class AuthService implements IAuthService {
             biometricCredentialRepository.save(credential);
 
             // Log failed attempt
-            logFailedAttempt(user.getLoginId(), user.getId(), AuthMethod.BIOMETRIC,
-                    FailureReason.INVALID_SIGNATURE, ipAddress, request.getUserAgent());
+            authAttemptEvent.userId(user.getId()).loginId(user.getLoginId()).failureReason(FailureReason.INVALID_SIGNATURE);
+            logAuthAttempt(authAttemptEvent.build());
 
-            throw new SignatureException("Invalid signature");
+            return ApiResponse.setResponse(null, "Invalid Signature", 401);
         }
 
         // Successful authentication
@@ -249,19 +285,18 @@ public class AuthService implements IAuthService {
         credential.setLastUsedAt(LocalDateTime.now());
         biometricCredentialRepository.save(credential);
 
-        // Log successful attempt
-        logSuccessfulAttempt(user.getLoginId(), user.getId(), AuthMethod.BIOMETRIC,
-                ipAddress, request.getUserAgent());
+        authAttemptEvent.successful(true);
+        logAuthAttempt(authAttemptEvent.build());
 
         log.info("User {} logged in successfully via BIOMETRIC", user.getLoginId());
 
         return ApiResponse.setSuccess(createAuthResponse(user, AuthMethod.BIOMETRIC, credential,
-                request.getDeviceId(), null, request.getClientIp(),request.getUserAgent()));
+                request.getDeviceId(), null, request.getClientIp(), request.getUserAgent()));
     }
 
     @Transactional
     @Override
-    public ApiResponse<Long> registerBiometricCredential(BiometricRegistrationRequest request) {
+    public ApiResponse<BiometricRegistrationResponse> registerBiometricCredential(BiometricRegistrationRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
 
@@ -276,6 +311,7 @@ public class AuthService implements IAuthService {
 
         // Generate hash of public key
         String publicKeyHash = signatureUtils.generateHash(request.getPublicKey());
+
 
         // Create credential
         BiometricCredential credential = new BiometricCredential();
@@ -301,7 +337,10 @@ public class AuthService implements IAuthService {
         log.info("Biometric credential registered for user: {}, device: {}",
                 user.getLoginId(), request.getDeviceId());
 
-        return ApiResponse.setResponse(credential.getId(), "Biometric credential registered successfully", 200);
+        return ApiResponse.setResponse(BiometricRegistrationResponse.builder()
+                .credentialId(credential.getId())
+                .publicKeyHash(publicKeyHash)
+                .build(), "Biometric credential registered successfully.", 200);
     }
 
     @Transactional(readOnly = true)
@@ -317,7 +356,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<Void> revokeBiometricCredential(Long userId, Long biometricCredentialId) {
         BiometricCredential credential = biometricCredentialRepository.findById(biometricCredentialId)
-                .orElseThrow(() -> new RuntimeException("Credential not found"));
+                .orElseThrow(() -> new DataNotFoundException("Credential not found"));
 
         if (!credential.getUser().getId().equals(userId)) {
             throw new BadCredentialsException("Unauthorized");
@@ -443,34 +482,10 @@ public class AuthService implements IAuthService {
         }
     }
 
-    private void logSuccessfulAttempt(String loginId, Long userId, AuthMethod method,
-                                      String ipAddress, String userAgent) {
-      logAuthAttempt(loginId, userId, method, null, ipAddress, userAgent, true);
-    }
 
 
-
-    private void logFailedAttempt(String loginId, Long userId, AuthMethod method,
-                                  FailureReason reason, String ipAddress,
-                                  String userAgent) {
-
-        logAuthAttempt(loginId, userId, method, reason, ipAddress, userAgent, false);
-
-
-    }
-
-    private void logAuthAttempt(String loginId, Long userId, AuthMethod method,
-                                FailureReason reason, String ipAddress,
-                                String userAgent, boolean successful) {
-        eventPublisher.publishEvent(AuthAttemptEvent.builder()
-                .loginId(loginId)
-                .successful(successful)
-                .userId(userId)
-                .method(method)
-                .failureReason(reason)
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .build());
+    protected void logAuthAttempt(AuthAttemptEvent event) {
+        eventPublisher.publishEvent(event);
 
     }
 }
