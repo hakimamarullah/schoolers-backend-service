@@ -5,6 +5,7 @@ import com.schoolers.dto.ApiResponse;
 import com.schoolers.dto.request.ScheduleRequest;
 import com.schoolers.dto.response.ScheduleResponse;
 import com.schoolers.service.IScheduleService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @LogRequestResponse
 @RolesAllowed({"OFFICE_ADMIN"})
+@SecurityRequirement(name = "bearerJWT")
 public class AdminScheduleController {
 
     private final IScheduleService scheduleService;

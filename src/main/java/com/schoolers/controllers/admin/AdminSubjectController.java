@@ -6,6 +6,7 @@ import com.schoolers.dto.request.CreateSubjectRequest;
 import com.schoolers.dto.request.UpdateSubjectRequest;
 import com.schoolers.dto.response.SubjectInfo;
 import com.schoolers.service.ISubjectService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @LogRequestResponse
 @RequiredArgsConstructor
 @RolesAllowed({"OFFICE_ADMIN"})
+@SecurityRequirement(name = "bearerJWT")
 public class AdminSubjectController {
 
     private final ISubjectService subjectService;

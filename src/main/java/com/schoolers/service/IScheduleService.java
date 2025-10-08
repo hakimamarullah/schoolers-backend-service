@@ -3,6 +3,7 @@ package com.schoolers.service;
 import com.schoolers.dto.ApiResponse;
 import com.schoolers.dto.PagedResponse;
 import com.schoolers.dto.request.ScheduleRequest;
+import com.schoolers.dto.response.ClassroomSchedulesInfo;
 import com.schoolers.dto.response.ScheduleResponse;
 import com.schoolers.enums.DayOfWeek;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public interface IScheduleService {
 
     void softDelete(Long id);
 
-    ApiResponse<List<ScheduleResponse>> findByClassroomId(Long classroomId);
+    ApiResponse<ClassroomSchedulesInfo> findByClassroomId(Long classroomId);
 
     ApiResponse<List<ScheduleResponse>> findByTeacherId(Long teacherId);
 

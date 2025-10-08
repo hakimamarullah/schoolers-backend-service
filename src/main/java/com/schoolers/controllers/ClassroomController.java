@@ -5,6 +5,7 @@ import com.schoolers.dto.ApiResponse;
 import com.schoolers.dto.response.ClassroomInfo;
 import com.schoolers.dto.response.SimpleClassroomInfo;
 import com.schoolers.service.IClassroomService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/classrooms")
 @LogRequestResponse
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerJWT")
 public class ClassroomController {
 
 

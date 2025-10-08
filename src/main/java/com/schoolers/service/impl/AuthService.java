@@ -408,7 +408,7 @@ public class AuthService implements IAuthService {
                                             BiometricCredential credential, String deviceId,
                                             String deviceName, String clientIp, String userAgent) {
         // Generate JWT token
-        String token = jwtUtil.generateToken(String.valueOf(user.getId()), user.getLoginId(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getLoginId(), user.getLoginId(), user.getRole().name());
         String tokenHash = signatureUtils.generateHash(token);
 
         // Create session

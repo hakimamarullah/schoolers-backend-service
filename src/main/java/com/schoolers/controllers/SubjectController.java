@@ -5,6 +5,7 @@ import com.schoolers.dto.ApiResponse;
 import com.schoolers.dto.PagedResponse;
 import com.schoolers.dto.response.SubjectInfo;
 import com.schoolers.service.ISubjectService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RolesAllowed({"OFFICE_ADMIN", "STUDENT", "TEACHER"})
 @LogRequestResponse
+@SecurityRequirement(name = "bearerJWT")
 public class SubjectController {
 
     private final ISubjectService subjectService;

@@ -7,7 +7,6 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -23,11 +22,6 @@ public class AuditConfig {
     AuditorAware<String> auditorProvider() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-                String username = jwtAuth.getToken().getClaimAsString("loginId");
-                return Optional.ofNullable(username).or(() -> Optional.of(SYSTEM));
-            }
 
             if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equalsIgnoreCase("anonymousUser")) {
                 return Optional.ofNullable(authentication.getName()).or(() -> Optional.of(SYSTEM));

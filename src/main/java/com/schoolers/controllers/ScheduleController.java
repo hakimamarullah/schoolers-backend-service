@@ -3,9 +3,11 @@ package com.schoolers.controllers;
 import com.schoolers.annotations.LogRequestResponse;
 import com.schoolers.dto.ApiResponse;
 import com.schoolers.dto.PagedResponse;
+import com.schoolers.dto.response.ClassroomSchedulesInfo;
 import com.schoolers.dto.response.ScheduleResponse;
 import com.schoolers.enums.DayOfWeek;
 import com.schoolers.service.IScheduleService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/schedules")
 @RequiredArgsConstructor
 @LogRequestResponse
+@SecurityRequirement(name = "bearerJWT")
 public class ScheduleController {
 
     private final IScheduleService scheduleService;
@@ -37,7 +40,7 @@ public class ScheduleController {
 
 
     @GetMapping("/classroom/{classroomId}")
-    public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getSchedulesByClassroom(@PathVariable Long classroomId) {
+    public ResponseEntity<ApiResponse<ClassroomSchedulesInfo>> getSchedulesByClassroom(@PathVariable Long classroomId) {
         return scheduleService.findByClassroomId(classroomId).toResponseEntity();
     }
 

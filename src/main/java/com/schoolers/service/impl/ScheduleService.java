@@ -5,6 +5,7 @@ import com.schoolers.dto.PagedResponse;
 import com.schoolers.dto.event.ActivityLogEvent;
 import com.schoolers.dto.projection.TeacherInfo;
 import com.schoolers.dto.request.ScheduleRequest;
+import com.schoolers.dto.response.ClassroomSchedulesInfo;
 import com.schoolers.dto.response.ScheduleResponse;
 import com.schoolers.enums.ActivityType;
 import com.schoolers.enums.DayOfWeek;
@@ -23,6 +24,7 @@ import com.schoolers.utils.ScheduleMapper;
 import com.schoolers.validator.ScheduleValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +42,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@RegisterReflectionForBinding({
+        Schedule.class,
+        ScheduleRequest.class,
+        ScheduleResponse.class,
+        Classroom.class,
+        Subject.class,
+        Teacher.class,
+        ActivityLogEvent.class,
+        TeacherInfo.class,
+        ClassroomSchedulesInfo.class
+})
 public class ScheduleService implements IScheduleService {
 
     private final ScheduleRepository scheduleRepository;
@@ -47,6 +62,7 @@ public class ScheduleService implements IScheduleService {
     private final ScheduleMapper scheduleMapper;
     private final ScheduleValidator scheduleValidator;
     private final ApplicationEventPublisher eventPublisher;
+
 
     @Override
     @Transactional
@@ -120,7 +136,6 @@ public class ScheduleService implements IScheduleService {
         log.info("Schedule updated successfully with id: {}", updatedSchedule.getId());
 
 
-
         var response = scheduleMapper.toDto(updatedSchedule);
         getTeacherInfo(response.getTeacherId())
                 .ifPresent(it -> response.setTeacherName(it.getFullName()));
@@ -152,7 +167,7 @@ public class ScheduleService implements IScheduleService {
         List<Long> teacherIds = page.getContent().parallelStream()
                 .map(ScheduleResponse::getTeacherId)
                 .toList();
-        Map<Long, String>  teacherName = teacherRepository.findTeacherInfoByIdIn(teacherIds)
+        Map<Long, String> teacherName = teacherRepository.findTeacherInfoByIdIn(teacherIds)
                 .stream()
                 .collect(Collectors.toMap(TeacherInfo::getId, TeacherInfo::getFullName));
         page.getContent().forEach(it -> it.setTeacherName(teacherName.get(it.getTeacherId())));
@@ -196,25 +211,41 @@ public class ScheduleService implements IScheduleService {
     }
 
     @Override
-    public ApiResponse<List<ScheduleResponse>> findByClassroomId(Long classroomId) {
+    public ApiResponse<ClassroomSchedulesInfo> findByClassroomId(Long classroomId) {
         log.debug("Finding schedules by classroom id: {}", classroomId);
         List<ScheduleResponse> schedules = scheduleRepository.findByClassroomIdAndActiveTrue(classroomId)
                 .parallelStream()
                 .map(scheduleMapper::toDto)
                 .toList();
         setTeacherName(schedules);
-        return ApiResponse.setSuccess(schedules);
+        Map<DayOfWeek, List<ScheduleResponse>> grouped = schedules.parallelStream()
+                .collect(Collectors.groupingBy(
+                        ScheduleResponse::getDayOfWeek,
+                        LinkedHashMap::new,
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> list.stream()
+                                        .sorted(Comparator.comparing(ScheduleResponse::getStartTime))
+                                        .toList()
+                        )
+                ));
+        return ApiResponse.setSuccess(ClassroomSchedulesInfo.builder()
+                .classroomId(classroomId)
+                .classroomName(schedules.stream().findAny().map(ScheduleResponse::getClassroomName).orElse(""))
+                .schedules(grouped)
+                .build());
     }
 
     private void setTeacherName(List<ScheduleResponse> scheduleResponses) {
         List<Long> teacherIds = scheduleResponses.parallelStream()
                 .map(ScheduleResponse::getTeacherId)
                 .toList();
-        Map<Long, String>  teacherName = teacherRepository.findTeacherInfoByIdIn(teacherIds)
+        Map<Long, String> teacherName = teacherRepository.findTeacherInfoByIdIn(teacherIds)
                 .stream()
                 .collect(Collectors.toMap(TeacherInfo::getId, TeacherInfo::getFullName));
         scheduleResponses.forEach(it -> it.setTeacherName(teacherName.get(it.getTeacherId())));
     }
+
 
     @Override
     public ApiResponse<List<ScheduleResponse>> findByTeacherId(Long teacherId) {

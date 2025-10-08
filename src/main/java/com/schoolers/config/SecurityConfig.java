@@ -45,8 +45,8 @@ public class SecurityConfig {
 
     private final String[] noAuthPaths = new String[] {
             "/api/auth/login", "/api/auth/register", "/api/auth/biometric/**", "/api/info",
-            "/api/classrooms", "/api/subjects", "/api/schedules",
-            "/swagger-ui/**", "/v3/api-docs**", "/api/register/student", "/api/register/profile-picture"
+            "/api/subjects", "/api/schedules",
+            "/swagger-ui/**", "/v3/api-docs**", "/api/register/**", "/api/register/profile-picture"
     };
 
 
