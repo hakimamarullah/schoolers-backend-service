@@ -2,5 +2,5 @@ package com.schoolers.service;
 
 public interface IStudentService {
 
-    void changeClassroom(Long newClassroomId, Long studentId);
+    void changeClassroom(Long newClassroomId, String studentId);
 }

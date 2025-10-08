@@ -85,8 +85,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<BiometricRegistrationResponse>> registerBiometric(
             @Valid @RequestBody BiometricRegistrationRequest request,
             Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        request.setUserId(userId);
+        request.setLoginId(authentication.getName());
         var response = authService.registerBiometricCredential(request);
         return response.toResponseEntity();
     }
@@ -98,8 +97,7 @@ public class AuthController {
     @GetMapping("/biometric/credentials")
     public ResponseEntity<ApiResponse<List<BiometricCredential>>> getBiometricCredentials(
             Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        var credentials = authService.getUserBiometricCredentials(userId);
+        var credentials = authService.getUserBiometricCredentials(authentication.getName());
         return credentials.toResponseEntity();
     }
 
@@ -111,8 +109,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> revokeBiometric(
             @PathVariable Long credentialId,
             Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        var response = authService.revokeBiometricCredential(userId, credentialId);
+        var response = authService.revokeBiometricCredential(authentication.getName(), credentialId);
         return response.toResponseEntity();
     }
 
@@ -124,8 +121,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(
             @RequestParam String sessionId,
             Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        var response = authService.logout(userId, sessionId);
+        var response = authService.logout(authentication.getName(), sessionId);
         return response.toResponseEntity();
     }
 }

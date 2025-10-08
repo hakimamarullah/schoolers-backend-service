@@ -15,6 +15,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<StudentClassroomInfo> getStudentClassroomByStudentNumber(String studentNumber);
 
     @Modifying
-    @Query("UPDATE Student s SET s.classroom.id = :classroomId, s.updatedDate = CURRENT_TIMESTAMP, s.version = s.version + 1 WHERE s.id = :id")
-    int updateStudentById(Long id, Long classroomId);
+    @Query("UPDATE Student s SET s.classroom.id = :classroomId, s.updatedBy = :studentNumber," +
+            " s.updatedDate = CURRENT_TIMESTAMP, s.version = s.version + 1" +
+            " WHERE s.studentNumber = :studentNumber")
+    int updateStudentById(String studentNumber, Long classroomId);
 }

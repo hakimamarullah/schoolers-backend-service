@@ -297,7 +297,7 @@ public class AuthService implements IAuthService {
     @Transactional
     @Override
     public ApiResponse<BiometricRegistrationResponse> registerBiometricCredential(BiometricRegistrationRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
 
         // Check if device already registered for this user
@@ -345,20 +345,20 @@ public class AuthService implements IAuthService {
 
     @Transactional(readOnly = true)
     @Override
-    public ApiResponse<List<BiometricCredential>> getUserBiometricCredentials(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
+    public ApiResponse<List<BiometricCredential>> getUserBiometricCredentials(String loginId) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new DataNotFoundException(USER_NOT_FOUND));
         return ApiResponse.setSuccess(biometricCredentialRepository.findByUserAndActiveTrue(user));
     }
 
     @Transactional
     @Modifying
     @Override
-    public ApiResponse<Void> revokeBiometricCredential(Long userId, Long biometricCredentialId) {
+    public ApiResponse<Void> revokeBiometricCredential(String loginId, Long biometricCredentialId) {
         BiometricCredential credential = biometricCredentialRepository.findById(biometricCredentialId)
                 .orElseThrow(() -> new DataNotFoundException("Credential not found"));
 
-        if (!credential.getUser().getId().equals(userId)) {
+        if (!credential.getUser().getLoginId().equals(loginId)) {
             throw new BadCredentialsException("Unauthorized");
         }
 
@@ -385,11 +385,11 @@ public class AuthService implements IAuthService {
     @Transactional
     @Modifying
     @Override
-    public ApiResponse<Void> logout(Long userId, String sessionId) {
+    public ApiResponse<Void> logout(String loginId, String sessionId) {
         AuthSession session = authSessionRepository.findBySessionIdAndActiveTrue(sessionId)
                 .orElseThrow(() -> new DataNotFoundException("Session not found"));
 
-        if (!session.getUser().getId().equals(userId)) {
+        if (!session.getUser().getLoginId().equals(loginId)) {
             throw new BadCredentialsException("Unauthorized");
         }
 
@@ -398,7 +398,7 @@ public class AuthService implements IAuthService {
         session.setRevokedReason("logout");
         authSessionRepository.save(session);
 
-        log.info("User {} logged out, session: {}", userId, sessionId);
+        log.info("User {} logged out, session: {}", loginId, sessionId);
 
         return ApiResponse.setResponse(null, "User logout successfully", 200);
     }

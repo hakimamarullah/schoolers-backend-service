@@ -7,5 +7,5 @@ public class BaseRequest {
 
     private String clientIp;
     private String userAgent;
-    private Long userId;
+    private String loginId;
 }

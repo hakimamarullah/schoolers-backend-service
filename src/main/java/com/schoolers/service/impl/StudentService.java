@@ -15,7 +15,7 @@ public class StudentService implements IStudentService {
 
     @Transactional
     @Override
-    public void changeClassroom(Long newClassroomId, Long studentId) {
+    public void changeClassroom(Long newClassroomId, String studentId) {
         long updatedRows = studentRepository.updateStudentById(studentId, newClassroomId);
         if (updatedRows == 0) {
             throw new DataNotFoundException("Student or classroom not found");

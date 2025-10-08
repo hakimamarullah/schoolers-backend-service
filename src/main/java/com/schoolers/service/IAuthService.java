@@ -22,9 +22,9 @@ public interface IAuthService {
 
     ApiResponse<BiometricRegistrationResponse> registerBiometricCredential(BiometricRegistrationRequest payload);
 
-    ApiResponse<List<BiometricCredential>> getUserBiometricCredentials(Long userId);
+    ApiResponse<List<BiometricCredential>> getUserBiometricCredentials(String loginId);
 
-    ApiResponse<Void> revokeBiometricCredential(Long userId, Long biometricCredentialId);
+    ApiResponse<Void> revokeBiometricCredential(String loginId, Long biometricCredentialId);
 
-    ApiResponse<Void> logout(Long userId, String sessionId);
+    ApiResponse<Void> logout(String loginId, String sessionId);
 }

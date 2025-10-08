@@ -24,7 +24,7 @@ public class StudentController {
     @PutMapping("/change-classroom/{newClassroomId}")
     public ResponseEntity<ApiResponse<Void>> changeClassroom(@PathVariable Long newClassroomId,
                                                              Authentication authentication) {
-        studentService.changeClassroom(newClassroomId, Long.parseLong(authentication.getName()));
+        studentService.changeClassroom(newClassroomId, authentication.getName());
         return ResponseEntity.ok(ApiResponse.setSuccess(null));
     }
 }
