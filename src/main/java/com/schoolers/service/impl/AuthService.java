@@ -36,6 +36,8 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -385,6 +387,7 @@ public class AuthService implements IAuthService {
     @Transactional
     @Modifying
     @Override
+    @Retryable(backoff = @Backoff(delay = 1000), noRetryFor = {DataNotFoundException.class, BadCredentialsException.class})
     public ApiResponse<Void> logout(String loginId, String sessionId) {
         AuthSession session = authSessionRepository.findBySessionIdAndActiveTrue(sessionId)
                 .orElseThrow(() -> new DataNotFoundException("Session not found"));

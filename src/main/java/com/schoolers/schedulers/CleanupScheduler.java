@@ -5,6 +5,7 @@ import com.schoolers.repository.AuthSessionRepository;
 import com.schoolers.repository.BiometricChallengeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,12 +40,13 @@ public class CleanupScheduler {
     /**
      * Clean up expired sessions every hour
      */
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     @Transactional
+    @Modifying
     public void cleanupExpiredSessions() {
         try {
-            sessionRepository.deleteByExpiresAtBeforeAndActiveTrue(LocalDateTime.now());
-            log.info("Cleaned up expired sessions");
+            Long count = sessionRepository.deleteAllByExpiresAtBefore(LocalDateTime.now());
+            log.info("Cleaned up expired sessions -> {} sessions", count);
         } catch (Exception e) {
             log.error("Error cleaning up sessions", e);
         }
