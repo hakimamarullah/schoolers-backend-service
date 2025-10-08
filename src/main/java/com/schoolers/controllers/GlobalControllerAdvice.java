@@ -16,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,6 +38,7 @@ public class GlobalControllerAdvice {
 
     private final ObjectMapper mapper;
 
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         log.error("[INVALID ARGUMENTS]: {}", ex.getMessage(), ex);
@@ -50,6 +52,14 @@ public class GlobalControllerAdvice {
         response.setCode(400);
         response.setMessage("Invalid Arguments");
         response.setData(errors);
+        return response.toResponseEntity();
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleAccessExceptions(AuthorizationDeniedException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>();
+        response.setCode(403);
+        response.setMessage("Access Denied");
         return response.toResponseEntity();
     }
 
@@ -98,7 +108,7 @@ public class GlobalControllerAdvice {
         log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage(ex.getMostSpecificCause().getLocalizedMessage());
+        response.setMessage("Data Integrity Violation");
         response.setData(ex.getMessage());
 
         return response.toResponseEntity();

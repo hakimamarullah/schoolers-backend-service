@@ -8,10 +8,8 @@ import com.schoolers.dto.response.UserRegistrationResponse;
 import com.schoolers.service.impl.UserRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/register")
 @RequiredArgsConstructor
-@Slf4j
 @LogRequestResponse
 public class UserRegistrationController {
 
@@ -49,7 +46,6 @@ public class UserRegistrationController {
      * Register new teacher (requires OFFICE_ADMIN role)
      */
     @PostMapping(value = "/teacher", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('OFFICE_ADMIN')")
     public ResponseEntity<ApiResponse<UserRegistrationResponse>> registerTeacher(
             @RequestPart("data") @Valid RegisterStaffRequest request,
             @RequestPart("file") MultipartFile profilePicture) {
@@ -62,7 +58,6 @@ public class UserRegistrationController {
      * Register new office admin (requires OFFICE_ADMIN role)
      */
     @PostMapping(value = "/admin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    //@PreAuthorize("hasRole('OFFICE_ADMIN')")
     public ResponseEntity<ApiResponse<UserRegistrationResponse>> registerOfficeAdmin(
             @RequestPart("data") RegisterStaffRequest request,
             @RequestPart("file") MultipartFile profilePicture) {

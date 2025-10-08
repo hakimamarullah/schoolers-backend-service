@@ -44,7 +44,8 @@ public class SecurityConfig {
 
 
     private final String[] noAuthPaths = new String[] {
-            "/api/auth/login", "/api/auth/register", "/api/auth/biometric/**",
+            "/api/auth/login", "/api/auth/register", "/api/auth/biometric/**", "/api/info",
+            "/api/classrooms", "/api/subjects", "/api/schedules",
             "/swagger-ui/**", "/v3/api-docs**", "/api/register/student", "/api/register/profile-picture"
     };
 
@@ -66,19 +67,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(authorizeHttpRequest ->
-                        authorizeHttpRequest
-                                .requestMatchers("/**").permitAll()
-                                .anyRequest()
-                                .authenticated()
-                )
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorizeHttpRequest ->
+                        authorizeHttpRequest
+                                .requestMatchers(noAuthPaths).permitAll()
+                                .anyRequest()
+                                .authenticated()
+                )
                 .exceptionHandling(handler ->
                         handler.authenticationEntryPoint(customAuthenticationEntryPoint)
                                 .accessDeniedHandler(customAccessDeniedHandler))
@@ -103,7 +105,7 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         var jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("role");
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
         var jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -121,6 +123,9 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
+
 
     // Set password encoding schema
     @Bean

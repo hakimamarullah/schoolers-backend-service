@@ -26,7 +26,7 @@ public class AdminSubjectController {
 
     private final ISubjectService subjectService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<SubjectInfo>> addSubject(@Valid @RequestBody CreateSubjectRequest payload) {
         return subjectService.addSubject(payload).toResponseEntity();
     }

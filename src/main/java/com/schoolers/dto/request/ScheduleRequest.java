@@ -5,15 +5,20 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleRequest {
+public class ScheduleRequest extends BaseRequest {
+
+    @NotNull(message = "Schedule ID is required")
+    private Long scheduleId;
 
     @NotNull(message = "Classroom ID is required")
     private Long classroomId;

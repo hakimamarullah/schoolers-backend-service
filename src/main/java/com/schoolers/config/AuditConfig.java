@@ -29,7 +29,7 @@ public class AuditConfig {
                 return Optional.ofNullable(username).or(() -> Optional.of(SYSTEM));
             }
 
-            if (authentication != null && authentication.isAuthenticated()) {
+            if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equalsIgnoreCase("anonymousUser")) {
                 return Optional.ofNullable(authentication.getName()).or(() -> Optional.of(SYSTEM));
             }
 
