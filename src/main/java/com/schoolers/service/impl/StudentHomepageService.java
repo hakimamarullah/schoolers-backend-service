@@ -70,6 +70,7 @@ public class StudentHomepageService implements IStudentHomePageService {
 
         // Categorize sessions
         List<SessionCard> ongoing = new ArrayList<>();
+        List<SessionCard> finished = new ArrayList<>();
         List<SessionCard> upcoming = new ArrayList<>();
         List<SessionCard> cancelled = new ArrayList<>();
         int finishedCount = 0;
@@ -86,6 +87,7 @@ public class StudentHomepageService implements IStudentHomePageService {
                 cancelled.add(card);
             } else if (isSessionFinished(session, currentTime, targetDate)) {
                 finishedCount++;
+                finished.add(card);
             } else if (isSessionOngoing(session, currentTime, targetDate)) {
                 ongoing.add(card);
             } else if (isSessionUpcoming(session, currentTime, targetDate)) {
@@ -105,6 +107,7 @@ public class StudentHomepageService implements IStudentHomePageService {
                 .ongoingSessions(ongoing)
                 .upcomingSessions(upcoming)
                 .cancelledSessions(cancelled)
+                .finishedSessions(finished)
                 .build();
 
         return ApiResponse.setSuccess(response);

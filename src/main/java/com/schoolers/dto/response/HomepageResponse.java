@@ -17,4 +17,5 @@ public class HomepageResponse {
     private List<SessionCard> ongoingSessions;
     private List<SessionCard> upcomingSessions;
     private List<SessionCard> cancelledSessions;
+    private List<SessionCard> finishedSessions;
 }

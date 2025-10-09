@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -125,7 +126,7 @@ public class GlobalControllerAdvice {
     }
 
 
-    @ExceptionHandler({InvalidFormatException.class, JsonParseException.class})
+    @ExceptionHandler({InvalidFormatException.class, JsonParseException.class, DateTimeParseException.class})
     public ResponseEntity<ApiResponse<String>> jsonExceptionHandler(Exception ex) {
         log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();

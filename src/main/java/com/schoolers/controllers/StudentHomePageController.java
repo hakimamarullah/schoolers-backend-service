@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/v1/students")
+@RequestMapping("/api/students")
 @RequiredArgsConstructor
 @LogRequestResponse
 @SecurityRequirement(name = "bearerJWT")
