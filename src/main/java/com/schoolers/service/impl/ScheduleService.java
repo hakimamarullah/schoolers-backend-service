@@ -91,7 +91,6 @@ public class ScheduleService implements IScheduleService {
         schedule.setDayOfWeek(payload.getDayOfWeek());
         schedule.setStartTime(payload.getStartTime());
         schedule.setEndTime(payload.getEndTime());
-        schedule.setRoom(payload.getRoom());
         schedule.setAcademicYear(payload.getAcademicYear());
         schedule.setActive(true);
 
@@ -327,10 +326,6 @@ public class ScheduleService implements IScheduleService {
 
         if (requestDto.getEndTime() != null) {
             schedule.setEndTime(requestDto.getEndTime());
-        }
-
-        if (requestDto.getRoom() != null) {
-            schedule.setRoom(requestDto.getRoom());
         }
 
         if (requestDto.getAcademicYear() != null) {

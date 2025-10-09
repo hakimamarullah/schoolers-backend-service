@@ -54,8 +54,6 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    private String room;
-
     @Column(name = "academic_year")
     private String academicYear;
 

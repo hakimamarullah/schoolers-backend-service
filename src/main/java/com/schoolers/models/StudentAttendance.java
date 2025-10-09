@@ -1,19 +1,7 @@
 package com.schoolers.models;
 
 import com.schoolers.enums.AttendanceStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.aot.hint.annotation.RegisterReflection;
@@ -49,12 +37,10 @@ public class StudentAttendance extends BaseEntity {
 
     @Column(name = "clock_in_time")
     private LocalDateTime clockInTime;
-    private String notes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recorded_by_teacher_id")
-    private Teacher recordedByTeacher;
+    @Column(name = "latitude")
+    private String latitude;
 
-    @Column(name = "recorded_at")
-    private LocalDateTime recordedAt;
+    @Column(name = "longitude")
+    private String longitude;
 }

@@ -38,7 +38,5 @@ public class ScheduleRequest extends BaseRequest {
     @NotNull(message = "End time is required")
     private LocalTime endTime;
 
-    private String room;
-
     private String academicYear;
 }

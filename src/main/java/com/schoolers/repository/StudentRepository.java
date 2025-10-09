@@ -19,4 +19,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
             " s.updatedDate = CURRENT_TIMESTAMP, s.version = s.version + 1" +
             " WHERE s.studentNumber = :studentNumber")
     int updateStudentById(String studentNumber, Long classroomId);
+
+    long countByClassroomId(Long classroomId);
+
+    Optional<Student> findByStudentNumber(String studentNumber);
 }

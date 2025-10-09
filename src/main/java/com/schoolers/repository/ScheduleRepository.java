@@ -1,8 +1,13 @@
 package com.schoolers.repository;
 
+import com.schoolers.dto.projection.SimpleScheduleInfo;
 import com.schoolers.enums.DayOfWeek;
 import com.schoolers.models.Schedule;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -52,4 +57,16 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             @Param("endTime") LocalTime endTime,
             @Param("excludeId") Long excludeId
     );
+
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT s.id as id, s.classroom.id as classroomId,
+    s.teacher.id as teacherId,
+    s.subject.id as subjectId,
+    s.startTime as startTime,
+    s.endTime as endTime, s.active as IsActive FROM Schedule s
+    WHERE s.dayOfWeek = :day AND s.active = true
+    """)
+    Page<SimpleScheduleInfo> getAllByDayOfWeekAndActiveIsTrue(DayOfWeek day, Pageable pageable);
 }
