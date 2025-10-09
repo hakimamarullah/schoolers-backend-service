@@ -34,6 +34,7 @@
         <lmax-disruptor.version>4.0.0</lmax-disruptor.version>
         <postgresql.version>42.7.7</postgresql.version>
         <native.maven.plugin.version>0.11.0</native.maven.plugin.version>
+        <hibernate-version>6.6.31.Final</hibernate-version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -257,6 +258,24 @@
                         <configuration>
                             <classifier>exec</classifier>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.hibernate.orm.tooling</groupId>
+                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <version>${hibernate-version}</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <enableLazyInitialization>true</enableLazyInitialization>
+                                    <enableDirtyTracking>true</enableDirtyTracking>
+                                    <enableAssociationManagement>true</enableAssociationManagement>
+                                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
+                                </configuration>
+                                <goals>
+                                    <goal>enhance</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

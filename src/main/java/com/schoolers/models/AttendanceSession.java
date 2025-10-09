@@ -62,6 +62,6 @@ public class AttendanceSession extends BaseEntity {
     @Column(nullable = false)
     private SessionStatus status = SessionStatus.SCHEDULED;
 
-    private String notes;
+    private String topic;
 
 }

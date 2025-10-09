@@ -9,6 +9,7 @@ import com.schoolers.repository.AuthSessionRepository;
 import com.schoolers.repository.UserRepository;
 import com.schoolers.service.ISessionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,10 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@RegisterReflectionForBinding({
+        ValidateSessionRequest.class,
+        ValidateSessionResponse.class
+})
 public class SessionService implements ISessionService {
 
     private final AuthSessionRepository authSessionRepository;
