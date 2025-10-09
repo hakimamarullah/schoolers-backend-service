@@ -1,6 +1,7 @@
 package com.schoolers.service.impl;
 
 import com.schoolers.service.IJwtUtil;
+import com.schoolers.utils.CryptoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,6 +31,11 @@ public class JwtUtil implements IJwtUtil {
     @Value("${jwt.expiration-millis}")
     private Long expirationMillis;
 
+    @Value("${jwt.audience}")
+    private String audience;
+
+    private final CryptoUtils cryptoUtils;
+
     @Override
     public String generateToken(String subject, String loginId, String role) {
         Instant now = Instant.now();
@@ -36,11 +43,12 @@ public class JwtUtil implements IJwtUtil {
 
         JwtClaimsSet claimSet = JwtClaimsSet.builder()
                 .issuer(issuer)
+                .audience(List.of(audience))
                 .issuedAt(now)
                 .expiresAt(expiryDate)
-                .subject(subject)
-                .claim("loginId", loginId)
-                .claim("role", role)
+                .subject(cryptoUtils.encrypt(subject))
+                .claim("loginId", cryptoUtils.encrypt(loginId))
+                .claim("role", cryptoUtils.encrypt(role))
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claimSet))

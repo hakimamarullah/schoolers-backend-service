@@ -3,6 +3,7 @@ package com.schoolers.config;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.schoolers.utils.CryptoUtils;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -64,6 +71,12 @@ public class SecurityConfig {
     @Value("${cors.allowed-origins}")
     private List<String> allowedOrigins;
 
+    @Value("${jwt.issuer}")
+    private String issuer;
+
+    @Value("${jwt.audience}")
+    private String audience;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -97,8 +110,26 @@ public class SecurityConfig {
 
     // Used by JwtAuthenticationProvider to decode and validate JWT tokens
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(this.rsaPublicKey).build();
+    public JwtDecoder jwtDecoder(CryptoUtils cryptoUtils) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
+
+        // Validators
+        var withIssuer = new JwtIssuerValidator(issuer);
+        var withAudience = new JwtClaimValidator<List<String>>(
+                "aud", aud -> aud != null && aud.contains(audience)
+        );
+
+        // Combine validators
+        OAuth2TokenValidator<Jwt> combinedValidator = new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefault(),
+                withIssuer,
+                withAudience
+        );
+
+        decoder.setJwtValidator(combinedValidator);
+        decoder.setClaimSetConverter(CryptoClaimsConverter.builder().withCryptoUtils(cryptoUtils).build());
+
+        return decoder;
     }
 
     // Extract authorities from the roles claim
