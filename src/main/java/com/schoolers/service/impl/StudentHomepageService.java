@@ -20,6 +20,7 @@ import com.schoolers.repository.TeacherRepository;
 import com.schoolers.service.IStudentHomePageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@RegisterReflectionForBinding({
+        SessionCard.class,
+        AttendanceStats.class,
+        HomepageResponse.class,
+        AttendanceInfo.class,
+})
 public class StudentHomepageService implements IStudentHomePageService {
 
 
