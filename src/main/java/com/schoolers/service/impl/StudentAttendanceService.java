@@ -13,6 +13,7 @@ import com.schoolers.repository.StudentAttendanceRepository;
 import com.schoolers.repository.StudentRepository;
 import com.schoolers.service.ILocalizationService;
 import com.schoolers.service.IStudentAttendanceService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
@@ -35,24 +36,25 @@ public class StudentAttendanceService implements IStudentAttendanceService {
     private final AttendanceSessionRepository sessionRepository;
     private final StudentRepository studentRepository;
     private final ILocalizationService localizationService;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
     public ApiResponse<AttendanceResponse> clockIn(ClockInRequest request) {
         log.info("Processing clock in for student: {} at session: {}",
-                request.getStudentId(), request.getSessionId());
+                request.getLoginId(), request.getSessionId());
 
         // Validate session exists and is active
         AttendanceSession session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("attendance.session-not-found")));
 
         // Validate student exists
-        Student student = studentRepository.findById(request.getStudentId())
+        Student student = studentRepository.findByStudentNumber(request.getLoginId())
                 .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("student.student-not-found")));
 
         // Check if already clocked in
         if (attendanceRepository.existsByStudentIdAndAttendanceSessionId(
-                request.getStudentId(), request.getSessionId())) {
+                student.getId(), request.getSessionId())) {
             return ApiResponse.setResponse(null, localizationService.getMessage("attendance.already-clock-in"), 409);
         }
 

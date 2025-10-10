@@ -19,7 +19,7 @@ public class AttendanceResponse {
     private Long sessionId;
     private AttendanceStatus status;
 
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "MMM dd, yyyy HH:mm:ss")
     private LocalDateTime clockInTime;
     private String latitude;
     private String longitude;

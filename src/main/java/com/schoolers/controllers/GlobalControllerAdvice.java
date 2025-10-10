@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.schoolers.annotations.LogResponse;
 import com.schoolers.dto.ApiResponse;
 import com.schoolers.exceptions.ApiException;
+import com.schoolers.service.ILocalizationService;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -39,6 +41,8 @@ public class GlobalControllerAdvice {
 
     private final ObjectMapper mapper;
 
+    private final ILocalizationService localizationService;
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -51,7 +55,7 @@ public class GlobalControllerAdvice {
         });
         ApiResponse<Map<String, String>> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage("Invalid Arguments");
+        response.setMessage(localizationService.getMessage("error.invalid-arguments"));
         response.setData(errors);
         return response.toResponseEntity();
     }
@@ -60,7 +64,15 @@ public class GlobalControllerAdvice {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleAccessExceptions(AuthorizationDeniedException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>();
         response.setCode(403);
-        response.setMessage("Access Denied");
+        response.setMessage(localizationService.getMessage("error.access-denied"));
+        return response.toResponseEntity();
+    }
+
+    @ExceptionHandler({NoResourceFoundException.class})
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleNoResourceFoundExceptions(NoResourceFoundException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>();
+        response.setCode(404);
+        response.setMessage(ex.getResourcePath());
         return response.toResponseEntity();
     }
 
@@ -69,7 +81,7 @@ public class GlobalControllerAdvice {
         log.error("[INTERNAL SERVER ERROR]: {}", ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(500);
-        response.setMessage("Something went wrong on our side");
+        response.setMessage(localizationService.getMessage("error.unknown-error"));
 
         String causeClassName = Optional.ofNullable(ex.getCause())
                 .map(Throwable::getClass)
@@ -84,7 +96,7 @@ public class GlobalControllerAdvice {
         log.error("[MISSING REQUEST BODY]: {}", ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage("Something went wrong on our side");
+        response.setMessage(localizationService.getMessage("error.parsing-error"));
 
         String causeClassName = Optional.ofNullable(ex.getCause())
                 .map(Throwable::getClass)
@@ -109,7 +121,7 @@ public class GlobalControllerAdvice {
         log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage("Data Integrity Violation");
+        response.setMessage(localizationService.getMessage("error.data-integrity"));
         response.setData(ex.getMessage());
 
         return response.toResponseEntity();
@@ -119,7 +131,7 @@ public class GlobalControllerAdvice {
     public ResponseEntity<ApiResponse<String>> missingServletRequestParameterException(MissingServletRequestParameterException ex) {
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage("Something went wrong.");
+        response.setMessage(localizationService.getMessage("error.invalid-arguments"));
         response.setData(ex.getParameterName());
 
         return response.toResponseEntity();
@@ -131,7 +143,7 @@ public class GlobalControllerAdvice {
         log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage("Failed to process data");
+        response.setMessage(localizationService.getMessage("error.parsing-error"));
         response.setData(ex.getClass().getCanonicalName());
 
         return response.toResponseEntity();
@@ -194,7 +206,7 @@ public class GlobalControllerAdvice {
     private String suppressMessage(String message) {
         return Optional.ofNullable(message)
                 .map(it -> it.substring(0, Math.min(message.length(), 150)))
-                .orElse("Unknown error");
+                .orElse(localizationService.getMessage("error.unknown-error"));
     }
 
 

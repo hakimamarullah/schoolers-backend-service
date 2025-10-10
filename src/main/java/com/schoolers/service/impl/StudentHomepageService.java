@@ -88,11 +88,11 @@ public class StudentHomepageService implements IStudentHomePageService {
 
             if (session.getStatus() == SessionStatus.CANCELLED) {
                 cancelled.add(card);
+            } else if (isSessionOngoing(session, currentTime, targetDate)) {
+                ongoing.add(card);
             } else if (isSessionFinished(session, currentTime, targetDate)) {
                 finishedCount++;
                 finished.add(card);
-            } else if (isSessionOngoing(session, currentTime, targetDate)) {
-                ongoing.add(card);
             } else if (isSessionUpcoming(session, currentTime, targetDate)) {
                 upcoming.add(card);
             }
@@ -223,6 +223,9 @@ public class StudentHomepageService implements IStudentHomePageService {
     }
 
     private boolean isSessionFinished(AttendanceSession session, LocalTime currentTime, LocalDate targetDate) {
+        if (SessionStatus.COMPLETED.equals(session.getStatus())) {
+            return true;
+        }
         if (session.getSessionDate().isBefore(targetDate)) {
             return true;
         }

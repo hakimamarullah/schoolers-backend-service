@@ -8,8 +8,11 @@ import com.schoolers.service.IStudentAttendanceService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,12 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerJWT")
 @LogRequestResponse
+@RegisterReflectionForBinding({
+        Authentication.class,
+        JwtAuthenticationToken.class
+})
 public class StudentAttendanceController {
 
     private final IStudentAttendanceService attendanceService;
 
 
     @PostMapping("/clock-in")
+    @PreAuthorize("#request.loginId == authentication.name")
     public ResponseEntity<ApiResponse<AttendanceResponse>> clockIn(@Valid @RequestBody ClockInRequest request) {
         ApiResponse<AttendanceResponse> response = attendanceService.clockIn(request);
         return response.toResponseEntity();

@@ -5,19 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Data
 @Builder(toBuilder = true)
 public class AttendanceSessionInfo {
 
-    private Long attendanceSessionId;
+    private Long sessionId;
 
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime startTime;
+    private String displayDate;
+    private String displayTime;
 
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime endTime;
 
     private String topic;
     private String subjectName;

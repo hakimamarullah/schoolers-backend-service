@@ -16,12 +16,12 @@ public class ClockInRequest {
     @NotNull(message = "Session ID is required")
     private Long sessionId;
 
-    @NotNull(message = "Student ID is required")
-    private Long studentId;
-
     @NotBlank(message = "Latitude is required")
     private String latitude;
 
     @NotBlank(message = "Longitude is required")
     private String longitude;
+
+    @NotBlank(message = "Login ID is required")
+    private String loginId;
 }

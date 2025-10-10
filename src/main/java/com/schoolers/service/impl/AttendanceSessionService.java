@@ -9,6 +9,7 @@ import com.schoolers.repository.AttendanceSessionRepository;
 import com.schoolers.repository.TeacherRepository;
 import com.schoolers.service.IAttendanceSessionService;
 import com.schoolers.service.ILocalizationService;
+import com.schoolers.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.stereotype.Service;
@@ -35,11 +36,12 @@ public class AttendanceSessionService implements IAttendanceSessionService {
                 .findFirst()
                 .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("attendance.session-not-found")));
 
+
         return ApiResponse.setSuccess(AttendanceSessionInfo.builder()
-                .attendanceSessionId(sessionInfo.getId())
+                .sessionId(sessionInfo.getId())
                 .topic(sessionInfo.getTopic())
-                .startTime(sessionInfo.getStartTime())
-                .endTime(sessionInfo.getEndTime())
+                .displayDate(CommonUtils.formatSessionDate(sessionInfo.getSessionDate()))
+                .displayTime(CommonUtils.formatSessionTime(sessionInfo.getStartTime(), sessionInfo.getEndTime()))
                 .sessionDate(sessionInfo.getSessionDate())
                 .subjectName(sessionInfo.getSubjectName())
                 .room(sessionInfo.getRoom())
