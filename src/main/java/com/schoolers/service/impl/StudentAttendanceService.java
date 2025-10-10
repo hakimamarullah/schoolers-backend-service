@@ -11,6 +11,7 @@ import com.schoolers.models.StudentAttendance;
 import com.schoolers.repository.AttendanceSessionRepository;
 import com.schoolers.repository.StudentAttendanceRepository;
 import com.schoolers.repository.StudentRepository;
+import com.schoolers.service.ILocalizationService;
 import com.schoolers.service.IStudentAttendanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class StudentAttendanceService implements IStudentAttendanceService {
     private final StudentAttendanceRepository attendanceRepository;
     private final AttendanceSessionRepository sessionRepository;
     private final StudentRepository studentRepository;
+    private final ILocalizationService localizationService;
 
     @Override
     @Transactional
@@ -42,16 +44,16 @@ public class StudentAttendanceService implements IStudentAttendanceService {
 
         // Validate session exists and is active
         AttendanceSession session = sessionRepository.findById(request.getSessionId())
-                .orElseThrow(() -> new DataNotFoundException("Attendance session not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("attendance.session-not-found")));
 
         // Validate student exists
         Student student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new DataNotFoundException("Student not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("student.student-not-found")));
 
         // Check if already clocked in
         if (attendanceRepository.existsByStudentIdAndAttendanceSessionId(
                 request.getStudentId(), request.getSessionId())) {
-            return ApiResponse.setResponse(null, "Already clocked in for this session", 409);
+            return ApiResponse.setResponse(null, localizationService.getMessage("attendance.already-clock-in"), 409);
         }
 
         LocalDateTime clockInTime = LocalDateTime.now();
@@ -85,7 +87,7 @@ public class StudentAttendanceService implements IStudentAttendanceService {
         log.info("Fetching attendance record: {}", attendanceId);
 
         StudentAttendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new RuntimeException("Attendance record not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("attendance.record-not-found")));
 
         Student student = attendance.getStudent();
         boolean isLate = attendance.getStatus() == AttendanceStatus.LATE;
@@ -104,7 +106,7 @@ public class StudentAttendanceService implements IStudentAttendanceService {
                 .orElse(null);
 
         if (attendance == null) {
-            return ApiResponse.setResponse(null, "No attendance record found", 404);
+            return ApiResponse.setResponse(null, localizationService.getMessage("attendance.record-not-found"), 404);
         }
 
         Student student = attendance.getStudent();

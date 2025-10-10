@@ -13,7 +13,7 @@ public class MessageSourceConfig {
     @Bean
     public MessageSource messageSource() {
         ResourceBundleMessageSource source = new ResourceBundleMessageSource();
-        source.setBasename("messages/whatsapp-otp");
+        source.setBasename("messages/msg");
         source.setDefaultLocale(Locale.ENGLISH);
         source.setFallbackToSystemLocale(false);
         source.setDefaultEncoding("UTF-8");

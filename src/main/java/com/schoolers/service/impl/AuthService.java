@@ -29,6 +29,7 @@ import com.schoolers.repository.BiometricCredentialRepository;
 import com.schoolers.repository.StudentRepository;
 import com.schoolers.repository.UserRepository;
 import com.schoolers.service.IAuthService;
+import com.schoolers.service.ILocalizationService;
 import com.schoolers.utils.SignatureUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +88,7 @@ public class AuthService implements IAuthService {
     private final JwtUtil jwtUtil;
     private final SignatureUtils signatureUtils;
     private final ApplicationEventPublisher eventPublisher;
+    private final ILocalizationService localizationService;
 
 
     @Value("${security.max-failed-attempts:5}")
@@ -120,21 +122,21 @@ public class AuthService implements IAuthService {
         User user = userRepository.findByLoginId(payload.getLoginId())
                 .orElseThrow(() -> {
                    logAuthAttempt(authAttemptEvent.failureReason(FailureReason.USER_NOT_FOUND).build());
-                    return new BadCredentialsException("Invalid credentials");
+                    return new BadCredentialsException(localizationService.getMessage("auth.invalid-credential"));
                 });
 
         authAttemptEvent.userId(user.getId());
         // Check if user is active
         if (Boolean.FALSE.equals(user.getActive())) {
             logAuthAttempt(authAttemptEvent.failureReason(FailureReason.USER_INACTIVE).build());
-            throw new BadCredentialsException("User account is inactive");
+            throw new BadCredentialsException(localizationService.getMessage("auth.account-inactive"));
         }
 
         // Verify password
         if (!passwordEncoder.matches(payload.getPassword(), user.getPassword())) {
             authAttemptEvent.failureReason(FailureReason.INVALID_CREDENTIALS);
             logAuthAttempt(authAttemptEvent.build());
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException(localizationService.getMessage("auth.invalid-credential"));
         }
 
         // Successful authentication
@@ -158,33 +160,33 @@ public class AuthService implements IAuthService {
 
         // Check if user is active
         if (Boolean.FALSE.equals(user.getActive())) {
-            throw new BadCredentialsException("User account is inactive");
+            throw new BadCredentialsException(localizationService.getMessage("auth.account-inactive"));
         }
 
         // Check if biometric is enabled
         if (Boolean.FALSE.equals(user.getBiometricEnabled())) {
-            throw new BadCredentialsException("Biometric authentication not enabled for this user");
+            throw new BadCredentialsException(localizationService.getMessage("auth.biometric.not-enabled"));
         }
 
         // Find biometric credential by public key hash
         BiometricCredential credential = biometricCredentialRepository
                 .findByPublicKeyHash(request.getPublicKeyHash())
-                .orElseThrow(() -> new BadCredentialsException("Device not registered"));
+                .orElseThrow(() -> new BadCredentialsException(localizationService.getMessage("auth.biometric.device-not-registered")));
 
         // Verify credential belongs to user
         if (!credential.getUser().getId().equals(user.getId())) {
-            throw new BadCredentialsException("Credential does not belong to user");
+            throw new BadCredentialsException(localizationService.getMessage("auth.biometric.credential-user-mismatch"));
         }
 
         // Check if credential is active
         if (Boolean.FALSE.equals(credential.getActive())) {
-            throw new BadCredentialsException("Credential is inactive");
+            throw new BadCredentialsException(localizationService.getMessage("auth.biometric.credential-inactive"));
         }
 
         // Check if device is locked
         if (credential.getLockedUntil() != null &&
                 credential.getLockedUntil().isAfter(LocalDateTime.now())) {
-            throw new TooManyAttempt("Device is temporarily locked due to failed attempts");
+            throw new TooManyAttempt(localizationService.getMessage("auth.biometric.device-locked"));
         }
 
         // Generate random challenge token
@@ -221,18 +223,18 @@ public class AuthService implements IAuthService {
         // Find challenge
         BiometricChallenge challenge = biometricChallengeRepository
                 .findByChallengeToken(request.getChallengeToken())
-                .orElseThrow(() -> new BadCredentialsException("Invalid challenge token"));
+                .orElseThrow(() -> new BadCredentialsException(localizationService.getMessage("auth.biometric.invalid-challenge-token")));
 
         // Check if challenge is still pending
         if (challenge.getStatus() != ChallengeStatus.PENDING) {
-            throw new BadCredentialsException("Challenge already processed");
+            throw new BadCredentialsException(localizationService.getMessage("auth.biometric.challenge-already-processed"));
         }
 
         // Check if challenge has expired
         if (challenge.getExpiresAt().isBefore(LocalDateTime.now())) {
             challenge.setStatus(ChallengeStatus.EXPIRED);
             biometricChallengeRepository.save(challenge);
-            throw new BadCredentialsException("Challenge expired");
+            throw new BadCredentialsException(localizationService.getMessage("auth.biometric.challenge-expired"));
         }
 
         BiometricCredential credential = challenge.getBiometricCredential();
@@ -271,7 +273,7 @@ public class AuthService implements IAuthService {
             authAttemptEvent.userId(user.getId()).loginId(user.getLoginId()).failureReason(FailureReason.INVALID_SIGNATURE);
             logAuthAttempt(authAttemptEvent.build());
 
-            return ApiResponse.setResponse(null, "Invalid Signature", 401);
+            return ApiResponse.setResponse(null, localizationService.getMessage("auth.biometric.invalid-signature"), 401);
         }
 
         // Successful authentication
@@ -305,7 +307,7 @@ public class AuthService implements IAuthService {
         // Check if device already registered for this user
         biometricCredentialRepository.findByUserAndDeviceIdAndActiveTrue(user, request.getDeviceId())
                 .ifPresent(existing -> {
-                    throw new DuplicateDataException("Device already registered");
+                    throw new DuplicateDataException(localizationService.getMessage("auth.biometric.device-already-registered"));
                 });
 
         // Validate public key format
@@ -342,7 +344,7 @@ public class AuthService implements IAuthService {
         return ApiResponse.setResponse(BiometricRegistrationResponse.builder()
                 .credentialId(credential.getId())
                 .publicKeyHash(publicKeyHash)
-                .build(), "Biometric credential registered successfully.", 200);
+                .build(), localizationService.getMessage("auth.biometric.success-register"), 200);
     }
 
     @Transactional(readOnly = true)
@@ -358,7 +360,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<Void> revokeBiometricCredential(String loginId, Long biometricCredentialId) {
         BiometricCredential credential = biometricCredentialRepository.findById(biometricCredentialId)
-                .orElseThrow(() -> new DataNotFoundException("Credential not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("auth.biometric.credential-not-found")));
 
         if (!credential.getUser().getLoginId().equals(loginId)) {
             throw new BadCredentialsException("Unauthorized");
@@ -390,7 +392,7 @@ public class AuthService implements IAuthService {
     @Retryable(backoff = @Backoff(delay = 1000), noRetryFor = {DataNotFoundException.class, BadCredentialsException.class})
     public ApiResponse<Void> logout(String loginId, String sessionId) {
         AuthSession session = authSessionRepository.findBySessionIdAndActiveTrue(sessionId)
-                .orElseThrow(() -> new DataNotFoundException("Session not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("auth.session-not-found")));
 
         if (!session.getUser().getLoginId().equals(loginId)) {
             throw new BadCredentialsException("Unauthorized");
@@ -403,7 +405,7 @@ public class AuthService implements IAuthService {
 
         log.info("User {} logged out, session: {}", loginId, sessionId);
 
-        return ApiResponse.setResponse(null, "User logout successfully", 200);
+        return ApiResponse.setResponse(null, localizationService.getMessage("auth.logout-success"), 200);
     }
 
 
@@ -473,7 +475,7 @@ public class AuthService implements IAuthService {
                 .countByLoginIdAndSuccessfulFalseAndCreatedDateAfter(loginId, since);
 
         if (failedAttempts >= maxFailedAttempts) {
-            throw new TooManyAttempt("Account temporarily locked due to too many failed attempts");
+            throw new TooManyAttempt(localizationService.getMessage("auth.account-locked"));
         }
 
         // Check failed attempts by IP
@@ -481,7 +483,7 @@ public class AuthService implements IAuthService {
                 .countByIpAddressAndSuccessfulFalseAndCreatedDateAfter(ipAddress, since);
 
         if (ipAttempts >= maxFailedAttempts * 2) {
-            throw new TooManyAttempt("Too many failed attempts from this IP address");
+            throw new TooManyAttempt(localizationService.getMessage("auth.ip-blocked"));
         }
     }
 

@@ -8,6 +8,7 @@ import com.schoolers.exceptions.DataNotFoundException;
 import com.schoolers.repository.AttendanceSessionRepository;
 import com.schoolers.repository.TeacherRepository;
 import com.schoolers.service.IAttendanceSessionService;
+import com.schoolers.service.ILocalizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class AttendanceSessionService implements IAttendanceSessionService {
 
     private final AttendanceSessionRepository attendanceSessionRepository;
     private final TeacherRepository teacherRepository;
+    private final ILocalizationService localizationService;
 
     @Transactional(readOnly = true)
     @Override
@@ -31,7 +33,7 @@ public class AttendanceSessionService implements IAttendanceSessionService {
         SimpleAttendanceSessionInfo sessionInfo = attendanceSessionRepository.getAllByStatusAndClassroomIdAndSessionDate(payload.getStatus(), payload.getClassroomId(), payload.getSessionDate())
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new DataNotFoundException("No attendance session found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("attendance.session-not-found")));
 
         return ApiResponse.setSuccess(AttendanceSessionInfo.builder()
                 .attendanceSessionId(sessionInfo.getId())

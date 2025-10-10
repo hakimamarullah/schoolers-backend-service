@@ -126,7 +126,7 @@ public class GlobalControllerAdvice {
     }
 
 
-    @ExceptionHandler({InvalidFormatException.class, JsonParseException.class, DateTimeParseException.class})
+    @ExceptionHandler({InvalidFormatException.class, JsonParseException.class, DateTimeParseException.class, InvalidFormatException.class})
     public ResponseEntity<ApiResponse<String>> jsonExceptionHandler(Exception ex) {
         log.error(ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();

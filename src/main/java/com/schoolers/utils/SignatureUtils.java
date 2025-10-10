@@ -1,6 +1,8 @@
 package com.schoolers.utils;
 
 import com.schoolers.exceptions.SignatureException;
+import com.schoolers.service.impl.LocalizationService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -23,7 +25,10 @@ import java.util.UUID;
 @Component
 @Slf4j
 @RegisterReflection
+@RequiredArgsConstructor
 public class SignatureUtils {
+
+    private final LocalizationService localizationService;
 
     public boolean verifySignature(String data, String signatureBase64, String publicKeyBase64,
                                    String algorithm) {
@@ -65,7 +70,7 @@ public class SignatureUtils {
         }
 
         if (Objects.isNull(pubKey)) {
-            throw new SignatureException("Invalid public key format");
+            throw new SignatureException(localizationService.getMessage("auth.biometric.public-key-invalid-format"));
         }
     }
 

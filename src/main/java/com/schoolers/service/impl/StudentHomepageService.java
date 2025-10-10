@@ -17,10 +17,12 @@ import com.schoolers.repository.AttendanceSessionRepository;
 import com.schoolers.repository.StudentAttendanceRepository;
 import com.schoolers.repository.StudentRepository;
 import com.schoolers.repository.TeacherRepository;
+import com.schoolers.service.ILocalizationService;
 import com.schoolers.service.IStudentHomePageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +53,7 @@ public class StudentHomepageService implements IStudentHomePageService {
     private final AttendanceSessionRepository sessionRepository;
     private final StudentAttendanceRepository attendanceRepository;
     private final TeacherRepository teacherRepository;
+    private final ILocalizationService localizationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -59,7 +62,7 @@ public class StudentHomepageService implements IStudentHomePageService {
 
         // Validate student
         Student student = studentRepository.findByStudentNumber(studentNumber)
-                .orElseThrow(() -> new DataNotFoundException("Student not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("homepage.student-not-found")));
 
         LocalDate targetDate = Optional.ofNullable(date).orElse(LocalDate.now());
         LocalTime currentTime = LocalTime.now();
@@ -120,7 +123,7 @@ public class StudentHomepageService implements IStudentHomePageService {
         // Format datetime
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         String datetime = String.format("%s, %s-%s",
-                session.getSessionDate().getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                session.getSessionDate().getDayOfWeek().getDisplayName(TextStyle.FULL, LocaleContextHolder.getLocale()),
                 session.getStartTime().format(timeFormatter),
                 session.getEndTime().format(timeFormatter));
 

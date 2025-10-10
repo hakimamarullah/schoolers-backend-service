@@ -16,6 +16,7 @@ import com.schoolers.repository.StudentRepository;
 import com.schoolers.repository.TeacherRepository;
 import com.schoolers.repository.UserRepository;
 import com.schoolers.service.IFileStorageService;
+import com.schoolers.service.ILocalizationService;
 import com.schoolers.service.IUserRegistrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,34 +36,37 @@ import org.springframework.web.multipart.MultipartFile;
 })
 public class UserRegistrationService implements IUserRegistrationService {
 
+    public static final String REGISTER_EMPLOYEE_NUMBER_ALREADY_USED = "register.employee-number-already-used";
+    public static final String REGISTER_EMAIL_ALREADY_USED = "register.email-already-used";
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final ClassroomRepository classroomRepository;
     private final PasswordEncoder passwordEncoder;
     private final IFileStorageService fileStorageService;
+    private final ILocalizationService localizationService;
 
     @Transactional
     @Override
     public ApiResponse<UserRegistrationResponse> registerStudent(RegisterStudentRequest request, MultipartFile profilePicture) {
         if (studentRepository.existsByStudentNumber(request.getStudentNumber())) {
-            throw new DuplicateDataException("Student number already exists");
+            throw new DuplicateDataException(localizationService.getMessage("register.student-number-already-exists"));
         }
 
         // Validate login ID uniqueness
         if (userRepository.existsByLoginId(request.getStudentNumber())) {
-            throw new DuplicateDataException("Login ID already exists");
+            throw new DuplicateDataException(localizationService.getMessage("register.student-number-already-exists"));
         }
 
         // Validate email uniqueness
         if (request.getEmail() != null && !request.getEmail().isEmpty()
                 && userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateDataException("Email already exists");
+            throw new DuplicateDataException(localizationService.getMessage(REGISTER_EMAIL_ALREADY_USED));
         }
 
         // Validate classroom exists
         Classroom classroom = classroomRepository.findById(request.getClassroomId())
-                .orElseThrow(() -> new DataNotFoundException("Classroom not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("classroom.not-found")));
 
         // Store profile picture if provided
         String profilePictureUrl = null;
@@ -114,17 +118,17 @@ public class UserRegistrationService implements IUserRegistrationService {
     public ApiResponse<UserRegistrationResponse> registerTeacher(RegisterStaffRequest request, MultipartFile profilePicture) {
         // Validate employee number uniqueness
         if (teacherRepository.existsByEmployeeNumber(request.getEmployeeNumber())) {
-            throw new DuplicateDataException("Employee number already exists");
+            throw new DuplicateDataException(localizationService.getMessage(REGISTER_EMPLOYEE_NUMBER_ALREADY_USED));
         }
 
         // Validate login ID uniqueness
         if (userRepository.existsByLoginId(request.getEmployeeNumber())) {
-            throw new DuplicateDataException("Login ID already exists");
+            throw new DuplicateDataException(localizationService.getMessage(REGISTER_EMPLOYEE_NUMBER_ALREADY_USED));
         }
 
         // Validate email uniqueness
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateDataException("Email already exists");
+            throw new DuplicateDataException(localizationService.getMessage(REGISTER_EMAIL_ALREADY_USED));
         }
 
         // Store profile picture if provided
@@ -175,12 +179,12 @@ public class UserRegistrationService implements IUserRegistrationService {
     public ApiResponse<UserRegistrationResponse> registerAdmin(RegisterStaffRequest request, MultipartFile profilePicture) {
         // Validate login ID uniqueness
         if (userRepository.existsByLoginId(request.getEmployeeNumber())) {
-            throw new DuplicateDataException("Login ID already exists");
+            throw new DuplicateDataException(localizationService.getMessage(REGISTER_EMPLOYEE_NUMBER_ALREADY_USED));
         }
 
         // Validate email uniqueness
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateDataException("Email already exists");
+            throw new DuplicateDataException(localizationService.getMessage(REGISTER_EMAIL_ALREADY_USED));
         }
 
         // Store profile picture if provided
@@ -221,7 +225,7 @@ public class UserRegistrationService implements IUserRegistrationService {
     @Transactional
     public ApiResponse<String> updateProfilePicture(Long userId, MultipartFile profilePicture) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("auth.user.not-found")));
 
         // Delete old profile picture if exists
         if (user.getProfilePictUri() != null) {
