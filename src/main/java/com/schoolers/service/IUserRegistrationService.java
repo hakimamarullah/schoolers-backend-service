@@ -14,5 +14,5 @@ public interface IUserRegistrationService {
 
     ApiResponse<UserRegistrationResponse> registerAdmin(RegisterStaffRequest payload, MultipartFile profilePict);
 
-    ApiResponse<String> updateProfilePicture(Long userId, MultipartFile profilePicture);
+    ApiResponse<String> updateProfilePicture(String loginId, MultipartFile profilePicture);
 }

@@ -37,7 +37,7 @@ public class JwtUtil implements IJwtUtil {
     private final CryptoUtils cryptoUtils;
 
     @Override
-    public String generateToken(String subject, String loginId, String role) {
+    public String generateToken(String subject, Long profileId, String role) {
         Instant now = Instant.now();
         Instant expiryDate = now.plusMillis(expirationMillis);
 
@@ -47,7 +47,7 @@ public class JwtUtil implements IJwtUtil {
                 .issuedAt(now)
                 .expiresAt(expiryDate)
                 .subject(cryptoUtils.encrypt(subject))
-                .claim("loginId", cryptoUtils.encrypt(loginId))
+                .claim("profileId", cryptoUtils.encrypt(String.valueOf(profileId)))
                 .claim("role", cryptoUtils.encrypt(role))
                 .build();
 

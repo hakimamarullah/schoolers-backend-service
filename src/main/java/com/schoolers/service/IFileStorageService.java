@@ -6,6 +6,8 @@ public interface IFileStorageService {
 
     String storeProfilePicture(MultipartFile file, String userType, String identifier);
 
-    void deleteProfilePicture(String fileUri);
+    String storeAssignmentResource(MultipartFile file, Long assignmentId);
+
+    void deleteFile(String fileUri);
 
 }

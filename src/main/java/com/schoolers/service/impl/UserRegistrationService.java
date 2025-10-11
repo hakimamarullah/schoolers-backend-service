@@ -223,13 +223,13 @@ public class UserRegistrationService implements IUserRegistrationService {
     }
 
     @Transactional
-    public ApiResponse<String> updateProfilePicture(Long userId, MultipartFile profilePicture) {
-        User user = userRepository.findById(userId)
+    public ApiResponse<String> updateProfilePicture(String loginId, MultipartFile profilePicture) {
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new DataNotFoundException(localizationService.getMessage("auth.user.not-found")));
 
         // Delete old profile picture if exists
         if (user.getProfilePictUri() != null) {
-            fileStorageService.deleteProfilePicture(user.getProfilePictUri());
+            fileStorageService.deleteFile(user.getProfilePictUri());
         }
 
         // Store new profile picture

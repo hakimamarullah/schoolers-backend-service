@@ -10,6 +10,7 @@ import com.schoolers.dto.ApiResponse;
 import com.schoolers.exceptions.ApiException;
 import com.schoolers.service.ILocalizationService;
 import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,14 @@ public class GlobalControllerAdvice {
         ApiResponse<Map<String, String>> response = new ApiResponse<>();
         response.setCode(404);
         response.setMessage(ex.getResourcePath());
+        return response.toResponseEntity();
+    }
+
+    @ExceptionHandler({EntityNotFoundException.class})
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleNoEntityFoundExceptions(EntityNotFoundException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>();
+        response.setCode(404);
+        response.setMessage(ex.getMessage());
         return response.toResponseEntity();
     }
 

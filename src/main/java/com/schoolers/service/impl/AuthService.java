@@ -302,7 +302,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<BiometricRegistrationResponse> registerBiometricCredential(BiometricRegistrationRequest request) {
         User user = userRepository.findByLoginId(request.getLoginId())
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
+                .orElseThrow(() -> new DataNotFoundException(USER_NOT_FOUND));
 
         // Check if device already registered for this user
         biometricCredentialRepository.findByUserAndDeviceIdAndActiveTrue(user, request.getDeviceId())
@@ -413,7 +413,7 @@ public class AuthService implements IAuthService {
                                             BiometricCredential credential, String deviceId,
                                             String deviceName, String clientIp, String userAgent) {
         // Generate JWT token
-        String token = jwtUtil.generateToken(user.getLoginId(), user.getLoginId(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getLoginId(), user.getId(), user.getRole().name());
         String tokenHash = signatureUtils.generateHash(token);
 
         // Create session

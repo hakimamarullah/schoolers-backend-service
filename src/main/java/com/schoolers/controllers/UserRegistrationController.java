@@ -6,6 +6,7 @@ import com.schoolers.dto.request.RegisterStaffRequest;
 import com.schoolers.dto.request.RegisterStudentRequest;
 import com.schoolers.dto.response.UserRegistrationResponse;
 import com.schoolers.service.impl.UserRegistrationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -70,11 +71,11 @@ public class UserRegistrationController {
      * Update own profile picture (requires authentication)
      */
     @PutMapping(value = "/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SecurityRequirement(name = "bearerJWT")
     public ResponseEntity<ApiResponse<String>> updateProfilePicture(
             @RequestParam("file") MultipartFile profilePicture,
             Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        var result = userRegistrationService.updateProfilePicture(userId, profilePicture);
+        var result = userRegistrationService.updateProfilePicture(authentication.getName(), profilePicture);
         return result.toResponseEntity();
     }
 }

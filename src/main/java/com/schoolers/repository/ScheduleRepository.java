@@ -69,4 +69,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     WHERE s.dayOfWeek = :day AND s.active = true
     """)
     Page<SimpleScheduleInfo> getAllByDayOfWeekAndActiveIsTrue(DayOfWeek day, Pageable pageable);
+
+    boolean existsByClassroomIdAndSubjectIdAndTeacherEmployeeNumber(Long classroomId, Long subjectId, String teacherId);
 }

@@ -14,7 +14,7 @@ import java.util.Locale;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload-dir:uploads/profile-pictures}")
+    @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
     @Override

@@ -22,4 +22,7 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
 
     @Query("SELECT t.user.fullName from Teacher t where t.id = :teacherId")
     Optional<String> getTeacherNameById(Long teacherId);
+
+    @Query("SELECT t.id from Teacher t where t.employeeNumber = :employeeNumber")
+    Long getIdByEmployeeNumber(String employeeNumber);
 }

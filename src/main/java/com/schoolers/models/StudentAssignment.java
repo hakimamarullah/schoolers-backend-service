@@ -1,7 +1,10 @@
 package com.schoolers.models;
 
+import com.schoolers.enums.SubmissionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Comment;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
 import java.time.LocalDateTime;
@@ -41,11 +45,12 @@ public class StudentAssignment extends BaseEntity {
     @JoinColumn(name = "assignment_id", nullable = false)
     private Assignment assignment;
 
-    @Column(nullable = false)
-    private Boolean isDone = false;
-
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
-    private String notes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    @Comment(on = "status", value = "Submission status")
+    private SubmissionStatus status;
 }
 
