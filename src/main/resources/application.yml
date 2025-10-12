@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -15,9 +15,6 @@ spring:
       enabled: false
     refresh:
       enabled: false
-    loadbalancer:
-      eager-load:
-        clients: whatsapp-svc
   application:
     name: schoolers-service
   config:
@@ -64,10 +61,10 @@ jwt:
   expiration-millis: 3600000
   public:
     key: |
-
+      {PUBLIC_KEY}
   private:
     key: |
-      
+      {PRIVATE_KEY}
 
 security:
   max-failed-attempts: 5
@@ -78,7 +75,13 @@ security:
 cors:
   allowed-origins: "*"
 
+school:
+  name: "SMA Negeri 1 Jakarta"
 
-file:
-  max-size: 102121212132
+
+crypto:
+  secret-key: jbVMV1eF20zR0Mj536rCCObLa5NGDiFf
+
+scheduler:
+  learning-session-cron: "0 0 3 * * *" # every day at 3 AM
 

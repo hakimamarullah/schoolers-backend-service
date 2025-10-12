@@ -1,5 +1,9 @@
 package com.schoolers.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import java.util.Optional;
+
 public enum FailureReason {
     INVALID_CREDENTIALS,
     INVALID_SIGNATURE,
@@ -10,5 +14,13 @@ public enum FailureReason {
     DEVICE_NOT_REGISTERED,
     ACCOUNT_LOCKED,
     RATE_LIMITED,
-    INVALID_TOKEN
+    INVALID_TOKEN;
+
+    @JsonCreator
+    public FailureReason fromString(String name) {
+        return Optional.ofNullable(name)
+                .map(String::toUpperCase)
+                .map(FailureReason::valueOf)
+                .orElse(null);
+    }
 }

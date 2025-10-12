@@ -1,5 +1,9 @@
 package com.schoolers.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import java.util.Optional;
+
 public enum ActivityType {
     CREATE_TEACHER,
     UPDATE_TEACHER,
@@ -22,5 +26,13 @@ public enum ActivityType {
     UPDATE_ASSIGNMENT,
     DELETE_ASSIGNMENT,
     RECORD_ATTENDANCE,
-    UPDATE_ATTENDANCE
+    UPDATE_ATTENDANCE;
+
+    @JsonCreator
+    public ActivityType fromString(String name) {
+        return Optional.ofNullable(name)
+                .map(String::toUpperCase)
+                .map(ActivityType::valueOf)
+                .orElse(null);
+    }
 }

@@ -4,6 +4,7 @@ import com.schoolers.annotations.LogRequestResponse;
 import com.schoolers.dto.ApiResponse;
 import com.schoolers.dto.PagedResponse;
 import com.schoolers.dto.response.StudentAssignmentResponse;
+import com.schoolers.enums.SubmissionStatus;
 import com.schoolers.service.IStudentAssignmentService;
 import com.schoolers.service.IStudentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -49,6 +50,14 @@ public class StudentController {
     @GetMapping(value = "/assignments/{id}")
     public ResponseEntity<ApiResponse<StudentAssignmentResponse>> getStudentAssignmentById(@PathVariable Long id, Authentication authentication) {
         return studentAssignmentService.getStudentAssigmentById(id, authentication.getName())
+                .toResponseEntity();
+    }
+
+    @PutMapping(value = "/assignments/{assignmentId}/status/{status}")
+    public ResponseEntity<ApiResponse<Void>> getStudentAssignmentById(@PathVariable Long assignmentId,
+                                                                      @PathVariable SubmissionStatus status,
+                                                                      Authentication authentication) {
+        return studentAssignmentService.updateAssignmentStatus(assignmentId, authentication.getName(), status)
                 .toResponseEntity();
     }
 }

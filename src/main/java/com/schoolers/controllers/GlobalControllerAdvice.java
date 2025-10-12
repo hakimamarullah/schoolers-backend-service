@@ -73,7 +73,8 @@ public class GlobalControllerAdvice {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleNoResourceFoundExceptions(NoResourceFoundException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>();
         response.setCode(404);
-        response.setMessage(ex.getResourcePath());
+        response.setData(Map.of("path", ex.getResourcePath()));
+        response.setMessage(localizationService.getMessage("error.not-found"));
         return response.toResponseEntity();
     }
 
@@ -81,7 +82,7 @@ public class GlobalControllerAdvice {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleNoEntityFoundExceptions(EntityNotFoundException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>();
         response.setCode(404);
-        response.setMessage(ex.getMessage());
+        response.setMessage(localizationService.getMessage("error.not-found"));
         return response.toResponseEntity();
     }
 
@@ -185,7 +186,7 @@ public class GlobalControllerAdvice {
         log.error(ex.getMessage());
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
-        response.setMessage(ex.getMessage());
+        response.setMessage(localizationService.getMessage("error.file-size-exceeded"));
         response.setData(ex.getClass().getCanonicalName());
 
         return response.toResponseEntity();

@@ -15,4 +15,5 @@ public interface StudentAssignmentInfo {
 
     Long getParentAssignmentId();
     String getDescription();
+    LocalDateTime getCompletedAt();
 }
