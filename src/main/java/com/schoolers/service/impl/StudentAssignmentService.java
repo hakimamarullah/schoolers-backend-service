@@ -13,6 +13,7 @@ import com.schoolers.repository.StudentAssignmentRepository;
 import com.schoolers.service.ILocalizationService;
 import com.schoolers.service.IStudentAssignmentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -26,6 +27,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Service
@@ -33,8 +35,11 @@ import java.util.Objects;
 @RegisterReflectionForBinding({
         StudentAssignmentResponse.class,
         StudentAssignmentService.Badge.class,
-        PagedResponse.class
+        PagedResponse.class,
+        LocaleContextHolder.class,
+        Locale.class
 })
+@Slf4j
 public class StudentAssignmentService implements IStudentAssignmentService {
 
     private final StudentAssignmentRepository studentAssignmentRepository;

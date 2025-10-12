@@ -76,6 +76,11 @@
             <AppenderRef ref="AppFile"/>
         </Logger>
 
+        <Logger name="com.schoolers.service.impl" level="debug" additivity="false">
+            <AppenderRef ref="AppFile"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
         <!-- Hibernate loggers - to separate hibernate file -->
         <Logger name="org.hibernate" level="info" additivity="false">
             <AppenderRef ref="HibernateFile"/>
