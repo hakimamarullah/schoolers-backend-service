@@ -48,7 +48,7 @@ public class CryptoClaimsConverter implements Converter<Map<String, Object>, Map
 
     private Map<String, Object> decryptClaims(Map<String, Object> claims) {
         Map<String, Object> decryptedClaims = new HashMap<>(claims);
-        String[] targetClaims = {"profileId", "role", "sub"};
+        String[] targetClaims = {"profileId", "role", "sub", "classroomId"};
         for (String claim : targetClaims) {
             if (claims.containsKey(claim)) {
                 decryptedClaims.put(claim, cryptoUtils.decrypt((String) claims.get(claim)));

@@ -10,4 +10,6 @@ public interface IFileStorageService {
 
     void deleteFile(String fileUri);
 
+    String storeFile(MultipartFile file, String identifier);
+
 }

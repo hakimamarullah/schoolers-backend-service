@@ -85,4 +85,9 @@ public class FileStorageService implements IFileStorageService {
         }
     }
 
+    @Override
+    public String storeFile(MultipartFile file, String identifier) {
+        return storeFile(file, "others", identifier);
+    }
+
 }

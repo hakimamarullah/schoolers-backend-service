@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface IJwtUtil {
 
-    String generateToken(String subject, Long profileId, String role);
+    String generateToken(Long classroomId, String subject, Long profileId, String role);
 
     Map<String, Object> validateToken(String token);
 

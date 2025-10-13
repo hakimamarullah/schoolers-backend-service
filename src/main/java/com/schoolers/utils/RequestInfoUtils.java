@@ -35,4 +35,5 @@ public class RequestInfoUtils {
         payload.setClientIp(getClientIp(servletRequest));
         payload.setUserAgent(getUserAgent(servletRequest));
     }
+
 }

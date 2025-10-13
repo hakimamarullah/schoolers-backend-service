@@ -117,6 +117,7 @@ public class AuthService implements IAuthService {
                 .method(AuthMethod.PASSWORD)
                 .successful(false)
                 .userAgent(payload.getUserAgent())
+                .deviceName(payload.getDeviceName())
                 .deviceId(payload.getDeviceId());
         // Find user
         User user = userRepository.findByLoginId(payload.getLoginId())
@@ -412,8 +413,14 @@ public class AuthService implements IAuthService {
     private AuthResponse createAuthResponse(User user, AuthMethod authMethod,
                                             BiometricCredential credential, String deviceId,
                                             String deviceName, String clientIp, String userAgent) {
+        Optional<StudentClassroomInfo> classroomInfo = studentRepository.getStudentClassroomByStudentNumber(user.getLoginId());
+
+        Long classroomId = 0L;
+        if (classroomInfo.isPresent()) {
+            classroomId = classroomInfo.get().getId();
+        }
         // Generate JWT token
-        String token = jwtUtil.generateToken(user.getLoginId(), user.getId(), user.getRole().name());
+        String token = jwtUtil.generateToken(classroomId, user.getLoginId(), user.getId(), user.getRole().name());
         String tokenHash = signatureUtils.generateHash(token);
 
         // Create session
@@ -449,7 +456,6 @@ public class AuthService implements IAuthService {
                 .build();
 
         if (user.getRole().equals(UserRole.STUDENT)) {
-            Optional<StudentClassroomInfo> classroomInfo = studentRepository.getStudentClassroomByStudentNumber(user.getLoginId());
             classroomInfo.ifPresent(it -> {
                 userInfo.setClassName(it.getName());
                 userInfo.setClassroomId(it.getId());

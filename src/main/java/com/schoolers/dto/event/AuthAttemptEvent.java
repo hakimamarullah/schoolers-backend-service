@@ -17,4 +17,5 @@ public class AuthAttemptEvent {
     private final String ipAddress;
     private final String userAgent;
     private final String deviceId;
+    private final String deviceName;
 }

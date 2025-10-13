@@ -78,6 +78,8 @@ public class GlobalControllerAdvice {
         return response.toResponseEntity();
     }
 
+
+
     @ExceptionHandler({EntityNotFoundException.class})
     public ResponseEntity<ApiResponse<Map<String, String>>> handleNoEntityFoundExceptions(EntityNotFoundException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>();
