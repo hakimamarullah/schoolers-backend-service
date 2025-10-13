@@ -8,7 +8,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class CommonUtils {
-    public static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss", LocaleContextHolder.getLocale())
+    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss", LocaleContextHolder.getLocale())
             .withZone(ZoneId.systemDefault());
     private CommonUtils() {
 
