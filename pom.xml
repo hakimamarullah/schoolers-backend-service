@@ -254,7 +254,7 @@
                                 <arg>-H:IncludeResources=application-local.yml</arg>
                                 <arg>-H:IncludeResources=application.yml</arg>
                                 <arg>-H:IncludeLocales=all</arg>
-                                <arg>-H:IncludeLocales=id</arg>
+                                <arg>-H:IncludeLocales=id,zh,ja</arg>
                                 <arg>-H:IncludeResources=log4j2-spring.xml</arg>
                                 <arg>-H:IncludeResources=messages/.*</arg>
                                 <arg>-H:+GenerateBuildArtifactsFile</arg>
@@ -284,7 +284,7 @@
                                 <configuration>
                                     <enableLazyInitialization>true</enableLazyInitialization>
                                     <enableDirtyTracking>true</enableDirtyTracking>
-                                    <enableAssociationManagement>true</enableAssociationManagement>
+                                    <enableAssociationManagement>false</enableAssociationManagement>
                                     <enableExtendedEnhancement>false</enableExtendedEnhancement>
                                 </configuration>
                                 <goals>

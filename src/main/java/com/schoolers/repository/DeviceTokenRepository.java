@@ -1,5 +1,6 @@
 package com.schoolers.repository;
 
+import com.schoolers.dto.projection.UserToken;
 import com.schoolers.enums.OSType;
 import com.schoolers.models.DeviceToken;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,4 +34,18 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
             "dt.updatedDate = CURRENT_TIMESTAMP, dt.updatedBy = 'SYSTEM', " +
             "dt.version = dt.version + 1 WHERE dt.token IN :tokens")
     int updateByTokenInSetActive(Set<String> tokens, boolean status);
+
+    @Query("SELECT DISTINCT dt.token FROM DeviceToken dt WHERE dt.user.id IN :userIds")
+    Set<String> getAllTokenByUserIdIn(Set<Long> userIds);
+
+    @Query("""
+     SELECT distinct s.id as ownerId, dt.token as token
+     FROM Student s
+     LEFT JOIN s.user u
+     LEFT JOIN DeviceToken dt ON dt.user = u
+     WHERE s.id IN :studentIds AND dt.active = true
+     """)
+    List<UserToken> getUserTokenByStudentIdIn(Set<Long> studentIds);
+
+
 }

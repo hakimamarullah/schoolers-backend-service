@@ -17,6 +17,8 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
 import java.time.LocalDateTime;
@@ -39,6 +41,7 @@ public class StudentAssignment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)

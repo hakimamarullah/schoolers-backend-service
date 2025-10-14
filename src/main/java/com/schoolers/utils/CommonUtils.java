@@ -4,12 +4,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class CommonUtils {
-    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss", LocaleContextHolder.getLocale())
-            .withZone(ZoneId.systemDefault());
     private CommonUtils() {
 
     }

@@ -15,6 +15,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
@@ -33,6 +35,7 @@ public class InformationUserTarget {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "information_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Information information;
 
     @Column(name = "user_id", nullable = false)

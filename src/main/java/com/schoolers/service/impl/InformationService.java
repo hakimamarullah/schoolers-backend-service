@@ -1,5 +1,6 @@
 package com.schoolers.service.impl;
 
+import com.schoolers.dto.event.NewInformationEvent;
 import com.schoolers.dto.projection.InformationDTO;
 import com.schoolers.dto.request.CreateInformationRequest;
 import com.schoolers.dto.response.InformationDetailResponse;
@@ -16,17 +17,19 @@ import com.schoolers.repository.InformationReadRepository;
 import com.schoolers.repository.InformationRepository;
 import com.schoolers.repository.UserRepository;
 import com.schoolers.service.ILocalizationService;
-import com.schoolers.utils.CommonUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -44,12 +47,13 @@ import java.util.concurrent.ExecutionException;
 })
 public class InformationService {
 
+    public static final String DD_MMM_YYYY_HH_MM_SS = "dd MMM yyyy HH:mm:ss";
     private final InformationRepository informationRepository;
     private final InformationReadRepository informationReadRepository;
     private final UserRepository userRepository;
     private final ILocalizationService localizationService;
     private final EntityManager entityManager;
-
+    private final ApplicationEventPublisher eventPublisher;
     /**
      * Create new information with targets
      */
@@ -99,12 +103,16 @@ public class InformationService {
         }
 
         var info = informationRepository.save(information);
+        var formatter = DateTimeFormatter.ofPattern(DD_MMM_YYYY_HH_MM_SS, LocaleContextHolder.getLocale())
+                .withZone(ZoneId.systemDefault());
+
+        eventPublisher.publishEvent(new NewInformationEvent(request, info.getId(), information.getTitle()));
         return InformationSimpleResponse.builder()
                 .authorName(info.getAuthor().getFullName())
                 .bannerUri(info.getBannerUri())
                 .body(info.getBody())
                 .title(info.getTitle())
-                .createdAt(info.getCreatedDate().format(CommonUtils.DATETIME_FORMATTER))
+                .createdAt(formatter.format(info.getCreatedDate()))
                 .id(info.getId())
                 .build();
     }
@@ -124,12 +132,14 @@ public class InformationService {
                 userId, safeClassroomId, safeRole, pageable
         );
 
+        var formatter = DateTimeFormatter.ofPattern(DD_MMM_YYYY_HH_MM_SS, LocaleContextHolder.getLocale())
+                .withZone(ZoneId.systemDefault());
         return projections.map(proj -> InformationSimpleResponse.builder()
                 .id(proj.getId())
                 .title(proj.getTitle())
                 .body(proj.getBody())
                 .bannerUri(proj.getBannerUri())
-                .createdAt(CommonUtils.DATETIME_FORMATTER.format(proj.getCreatedAt()))
+                .createdAt(formatter.format(proj.getCreatedAt()))
                 .authorName(proj.getAuthorName())
                 .hasRead(proj.getHasRead())
                 .build());
@@ -148,13 +158,15 @@ public class InformationService {
 
         User author = information.getAuthor();
 
+        var formatter = DateTimeFormatter.ofPattern(DD_MMM_YYYY_HH_MM_SS, LocaleContextHolder.getLocale())
+                .withZone(ZoneId.systemDefault());
         return InformationDetailResponse.builder()
                 .id(information.getId())
                 .title(information.getTitle())
                 .body(information.getBody())
                 .bannerUri(information.getBannerUri())
-                .createdAt(information.getCreatedDate().format(CommonUtils.DATETIME_FORMATTER))
-                .updatedAt(information.getUpdatedDate().format(CommonUtils.DATETIME_FORMATTER))
+                .createdAt(formatter.format(information.getCreatedDate()))
+                .updatedAt(formatter.format(information.getUpdatedDate()))
                 .author(InformationDetailResponse.AuthorDto.builder()
                         .id(author.getLoginId())
                         .name(author.getFullName())
@@ -169,7 +181,6 @@ public class InformationService {
      */
     @Transactional
     public void markAsRead(Long informationId, Long userId) {
-        // Check if already read
         if (informationReadRepository.existsById(new InformationReadId(informationId, userId))) {
             return;
         }
@@ -187,19 +198,23 @@ public class InformationService {
      * Check if user has access to information
      */
     @Transactional(readOnly = true)
-    public boolean notHasAccess(Long informationId, Long userId, String classroomId, String role) throws ExecutionException, InterruptedException {
-        CompletableFuture<Boolean> hasUserAccess = CompletableFuture.supplyAsync(() -> informationRepository.countByIdAndUserTargetsUserId(informationId, userId) > 0);
-        CompletableFuture<Boolean> hasClassroomAccess = CompletableFuture.supplyAsync(() -> informationRepository.countByIdAndClassroomTargetsClassroomId(informationId, classroomId) > 0);
-        CompletableFuture<Boolean> hasRoleAccess = CompletableFuture.supplyAsync(() -> informationRepository.countByIdAndRoleTargetsRole(informationId, role) > 0);
+    public boolean notHasAccess(Long informationId, Long userId, String classroomId, String role) {
+        boolean hasUserAccess = informationRepository.countByIdAndUserTargetsUserId(informationId, userId) > 0;
+        boolean hasClassroomAccess = informationRepository.countByIdAndClassroomTargetsClassroomId(informationId, classroomId) > 0;
+        boolean hasRoleAccess = informationRepository.countByIdAndRoleTargetsRole(informationId, role) > 0;
 
-
-        CompletableFuture.allOf(hasUserAccess, hasClassroomAccess, hasRoleAccess).join();
-
-        return !hasUserAccess.get() && !hasClassroomAccess.get() && !hasRoleAccess.get();
+        return !hasUserAccess && !hasClassroomAccess && !hasRoleAccess;
     }
+
 
     public Long countUnreadInformation(Long userId, String classroomId, String role) {
         return informationRepository.countUnreadForUser(userId, classroomId, role);
+    }
+
+    @Transactional
+    @Modifying
+    public void deleteAll() {
+        informationRepository.deleteAll();
     }
 
     private String getNotFoundMessage(Long informationId) {

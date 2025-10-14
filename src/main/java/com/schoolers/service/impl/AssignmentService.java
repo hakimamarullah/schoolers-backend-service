@@ -75,9 +75,13 @@ public class AssignmentService implements IAssignmentService {
         assignment = assignmentRepository.save(assignment);
         log.info("Assignment created with ID: {}", assignment.getId());
 
+
         eventPublisher.publishEvent(NewAssignmentEvent.builder()
+                .title(assignment.getTitle())
+                .subjectId(request.getSubjectId())
+                .classroomId(request.getClassroomId())
                 .assignmentId(assignment.getId())
-                .classroomId(request.getClassroomId()).build());
+                .build());
 
         return ApiResponse.setResponse(mapToResponse(assignment), 201);
     }

@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +28,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/informations")
@@ -42,9 +41,8 @@ public class InformationController {
 
     @PostMapping
     @RolesAllowed({"OFFICE_ADMIN", "TEACHER"})
-    public ResponseEntity<ApiResponse<InformationSimpleResponse>> createInformation(
-            @RequestBody CreateInformationRequest request,
-            Authentication authentication) {
+    public ResponseEntity<ApiResponse<InformationSimpleResponse>> createInformation(@RequestBody CreateInformationRequest request,
+                                                                                    Authentication authentication) {
 
         var information = informationService.createInformation(request, authentication.getName());
         return ApiResponse.setResponse(information, 201).toResponseEntity();
@@ -64,9 +62,7 @@ public class InformationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<InformationDetailResponse>> getInformationDetail(
-            @PathVariable Long id,
-            JwtAuthenticationToken jwt) throws ExecutionException, InterruptedException {
+    public ResponseEntity<ApiResponse<InformationDetailResponse>> getInformationDetail(@PathVariable Long id, JwtAuthenticationToken jwt) {
 
         var user = jwtClaimsUtils.extractAuthInfo(jwt);
         // Check access
@@ -79,10 +75,7 @@ public class InformationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<ApiResponse<Void>> markAsRead(
-            @PathVariable Long id,
-            JwtAuthenticationToken jwt) throws ExecutionException, InterruptedException {
-
+    public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long id, JwtAuthenticationToken jwt) {
         var user = jwtClaimsUtils.extractAuthInfo(jwt);
 
         if (informationService.notHasAccess(id, user.getProfileId(), String.valueOf(user.getClassroomId()), user.getRole())) {
@@ -98,5 +91,12 @@ public class InformationController {
         var user = jwtClaimsUtils.extractAuthInfo(jwt);
         Long count = informationService.countUnreadInformation(user.getProfileId(), String.valueOf(user.getClassroomId()), user.getRole());
         return ApiResponse.setSuccess(count).toResponseEntity();
+    }
+
+    @DeleteMapping
+    @RolesAllowed({"OFFICE_ADMIN", "TEACHER"})
+    public ResponseEntity<ApiResponse<Void>> deleteAllInformation() {
+        informationService.deleteAll();
+        return ApiResponse.<Void>setSuccess(null).toResponseEntity();
     }
 }

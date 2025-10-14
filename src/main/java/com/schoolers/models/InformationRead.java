@@ -5,6 +5,8 @@ package com.schoolers.models;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
 import java.time.Instant;
@@ -30,11 +32,13 @@ public class InformationRead {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("informationId")
     @JoinColumn(name = "information_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Information information;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @CreationTimestamp

@@ -24,7 +24,7 @@ ENV LOG_DIR=/opt/app/logs
 
 
 # Copy jar with fixed name
-COPY --from=builder --chown=spring:spring /opt/app/target/user-svc /opt/app/user-svc
+COPY --from=builder --chown=spring:spring /opt/app/target/schoolers-service /opt/app/schoolers-service
 
 RUN mkdir -p "$LOG_DIR" && chown -R spring:spring "$LOG_DIR"
 # Switch to non-root user
@@ -37,4 +37,4 @@ ENV JAVA_OPTS="" \
     JAVA_ARGS=""
 
 # Use exec form with sh to handle environment variables properly
-ENTRYPOINT ["sh", "-c", "exec /opt/app/user-svc $JAVA_OPTS $JAVA_ARGS"]
+ENTRYPOINT ["sh", "-c", "exec /opt/app/schoolers-service $JAVA_OPTS $JAVA_ARGS"]

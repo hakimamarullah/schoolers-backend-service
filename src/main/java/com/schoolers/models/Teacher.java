@@ -10,6 +10,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
@@ -25,6 +27,7 @@ public class Teacher extends BaseEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(unique = true)

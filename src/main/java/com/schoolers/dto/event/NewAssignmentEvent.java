@@ -10,4 +10,8 @@ public class NewAssignmentEvent {
     private Long assignmentId;
 
     private Long classroomId;
+
+    private String title;
+
+    private Long subjectId;
 }

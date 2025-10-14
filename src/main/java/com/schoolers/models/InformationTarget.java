@@ -2,6 +2,8 @@ package com.schoolers.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.aot.hint.annotation.RegisterReflection;
 
 @Entity
@@ -20,6 +22,7 @@ public class InformationTarget {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "information_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Information information;
 
     @Column(name = "classroom_id")

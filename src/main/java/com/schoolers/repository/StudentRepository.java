@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface StudentRepository extends JpaRepository<Student, Long> {
     boolean existsByStudentNumber(String studentNumber);
@@ -27,4 +28,10 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("SELECT s.id FROM Student s WHERE s.classroom.id = :classroomId")
     List<Long> findAllIdByClassroomId(Long classroomId);
+
+    @Query("SELECT DISTINCT s.user.id FROM Student s WHERE s.classroom.id IN :classroomIds")
+    Set<Long> getUserIdByClassroomIdIn(Set<Long> classroomIds);
+
+    @Query("SELECT DISTINCT s.user.id FROM Student s WHERE s.classroom.id = :classroomId")
+    Set<Long> getUserIdByClassroomId(Long classroomId);
 }

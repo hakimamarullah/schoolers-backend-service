@@ -5,12 +5,10 @@ import com.schoolers.dto.event.FCMFailedTokenEvent;
 import com.schoolers.repository.DeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,8 +22,8 @@ public class FailedFCMTokenListener {
     private final DeviceTokenRepository deviceTokenRepository;
 
     @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(value = FCMFailedTokenEvent.class, phase = TransactionPhase.AFTER_COMPLETION)
+    @Transactional
+    @EventListener(FCMFailedTokenEvent.class)
     public void onFailedToken(FCMFailedTokenEvent event) {
         log.info("[FAILED TOKEN] {}", event.getBatchResponse().getFailureCount());
 
