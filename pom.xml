@@ -253,6 +253,7 @@
                                 <arg>-H:IncludeResources=log4j2.component.properties</arg>
                                 <arg>-H:IncludeResources=application-local.yml</arg>
                                 <arg>-H:IncludeResources=application.yml</arg>
+                                <arg>-H:IncludeResources=admin_sdk.properties</arg>
                                 <arg>-H:IncludeLocales=all</arg>
                                 <arg>-H:IncludeLocales=id,zh,ja</arg>
                                 <arg>-H:IncludeResources=log4j2-spring.xml</arg>
@@ -260,6 +261,9 @@
                                 <arg>-H:+GenerateBuildArtifactsFile</arg>
                                 <arg>-march=compatibility</arg>
                                 <arg>-H:+AddAllCharsets</arg>
+                                <arg>--initialize-at-run-time=com.google.firebase.messaging.FirebaseMessagingClientImpl</arg>
+                                <arg>--initialize-at-run-time=com.google.firebase.messaging.FirebaseApp</arg>
+                                <arg>--initialize-at-run-time=com.google.firebase.messaging.FirebaseMessaging</arg>
                                 <arg>--add-opens java.base/java.lang=ALL-UNNAMED</arg>
                                 <arg>--add-opens java.base/java.util=ALL-UNNAMED</arg>
                                 <arg>--add-opens java.base/java.time=ALL-UNNAMED</arg>

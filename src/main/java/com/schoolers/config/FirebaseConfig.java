@@ -5,6 +5,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +15,10 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @Slf4j
+@RegisterReflectionForBinding({
+        GoogleCredentials.class,
+        FirebaseOptions.class
+})
 public class FirebaseConfig {
 
     @Bean

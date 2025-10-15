@@ -35,8 +35,8 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
             "dt.version = dt.version + 1 WHERE dt.token IN :tokens")
     int updateByTokenInSetActive(Set<String> tokens, boolean status);
 
-    @Query("SELECT DISTINCT dt.token FROM DeviceToken dt WHERE dt.user.id IN :userIds")
-    Set<String> getAllTokenByUserIdIn(Set<Long> userIds);
+    @Query("SELECT DISTINCT dt.token as token, dt.user.id as ownerId FROM DeviceToken dt WHERE dt.user.id IN :userIds")
+    Set<UserToken> getAllTokenByUserIdIn(Set<Long> userIds);
 
     @Query("""
      SELECT distinct s.id as ownerId, dt.token as token

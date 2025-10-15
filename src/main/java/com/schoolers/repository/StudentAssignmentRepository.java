@@ -19,7 +19,7 @@ public interface StudentAssignmentRepository extends JpaRepository<StudentAssign
     sa.assignment.description as description,
     sa.completedAt as completedAt,
     sa.status as status FROM StudentAssignment sa
-    WHERE sa.student.studentNumber = :studentNumber
+    WHERE sa.student.studentNumber = :studentNumber and sa.assignment.classroom.id = sa.student.classroom.id
     """)
     Page<StudentAssignmentInfo> findByStudentStudentNumber(String studentNumber, Pageable pageable);
 

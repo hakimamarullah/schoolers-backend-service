@@ -8,6 +8,7 @@ import com.schoolers.dto.response.ScheduleResponse;
 import com.schoolers.enums.DayOfWeek;
 import com.schoolers.service.IScheduleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +41,7 @@ public class ScheduleController {
 
 
     @GetMapping("/classroom/{classroomId}")
-    public ResponseEntity<ApiResponse<ClassroomSchedulesInfo>> getSchedulesByClassroom(@PathVariable Long classroomId) {
+    public ResponseEntity<ApiResponse<ClassroomSchedulesInfo>> getSchedulesByClassroom(@PathVariable Long classroomId, HttpServletRequest request) {
         return scheduleService.findByClassroomId(classroomId).toResponseEntity();
     }
 

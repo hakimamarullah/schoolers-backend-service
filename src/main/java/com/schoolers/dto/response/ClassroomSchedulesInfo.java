@@ -1,6 +1,5 @@
 package com.schoolers.dto.response;
 
-import com.schoolers.enums.DayOfWeek;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,5 +12,5 @@ public class ClassroomSchedulesInfo {
 
     private Long classroomId;
     private String classroomName;
-    private Map<DayOfWeek, List<ScheduleResponse>> schedules;
+    private Map<String, List<ScheduleResponse>> schedules;
 }

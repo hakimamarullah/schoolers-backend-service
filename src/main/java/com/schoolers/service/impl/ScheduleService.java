@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -107,7 +109,7 @@ public class ScheduleService implements IScheduleService {
                 .build();
         logActivity(logActivity);
 
-        var response = scheduleMapper.toDto(savedSchedule);
+        var response = scheduleMapper.toDto(savedSchedule, LocaleContextHolder.getLocale());
         getTeacherInfo(response.getTeacherId())
                 .ifPresent(it -> response.setTeacherName(it.getFullName()));
         return ApiResponse.setResponse(response, "Schedule created successfully", 201);
@@ -135,7 +137,7 @@ public class ScheduleService implements IScheduleService {
         log.info("Schedule updated successfully with id: {}", updatedSchedule.getId());
 
 
-        var response = scheduleMapper.toDto(updatedSchedule);
+        var response = scheduleMapper.toDto(updatedSchedule, LocaleContextHolder.getLocale());
         getTeacherInfo(response.getTeacherId())
                 .ifPresent(it -> response.setTeacherName(it.getFullName()));
 
@@ -153,7 +155,7 @@ public class ScheduleService implements IScheduleService {
 
     @Override
     public ApiResponse<ScheduleResponse> findById(Long id) {
-        var response = scheduleMapper.toDto(findScheduleById(id));
+        var response = scheduleMapper.toDto(findScheduleById(id), LocaleContextHolder.getLocale());
         getTeacherInfo(response.getTeacherId())
                 .ifPresent(it -> response.setTeacherName(it.getFullName()));
         return ApiResponse.setSuccess(response);
@@ -161,8 +163,9 @@ public class ScheduleService implements IScheduleService {
 
     @Override
     public ApiResponse<PagedResponse<ScheduleResponse>> findAll(Pageable pageable) {
+        Locale locale = LocaleContextHolder.getLocale();
         Page<ScheduleResponse> page = scheduleRepository.findAll(pageable)
-                .map(scheduleMapper::toDto);
+                .map(it -> scheduleMapper.toDto(it, locale));
         List<Long> teacherIds = page.getContent().parallelStream()
                 .map(ScheduleResponse::getTeacherId)
                 .toList();
@@ -212,12 +215,13 @@ public class ScheduleService implements IScheduleService {
     @Override
     public ApiResponse<ClassroomSchedulesInfo> findByClassroomId(Long classroomId) {
         log.debug("Finding schedules by classroom id: {}", classroomId);
+        Locale locale = LocaleContextHolder.getLocale();
         List<ScheduleResponse> schedules = scheduleRepository.findByClassroomIdAndActiveTrue(classroomId)
                 .parallelStream()
-                .map(scheduleMapper::toDto)
+                .map(it -> scheduleMapper.toDto(it, locale))
                 .toList();
         setTeacherName(schedules);
-        Map<DayOfWeek, List<ScheduleResponse>> grouped = schedules.parallelStream()
+        Map<String, List<ScheduleResponse>> grouped = schedules.parallelStream()
                 .collect(Collectors.groupingBy(
                         ScheduleResponse::getDayOfWeek,
                         LinkedHashMap::new,
@@ -249,9 +253,10 @@ public class ScheduleService implements IScheduleService {
     @Override
     public ApiResponse<List<ScheduleResponse>> findByTeacherId(Long teacherId) {
         log.debug("Finding schedules by teacher id: {}", teacherId);
+        Locale locale = LocaleContextHolder.getLocale();
         List<ScheduleResponse> schedules = scheduleRepository.findByTeacherIdAndActiveTrue(teacherId)
                 .parallelStream()
-                .map(scheduleMapper::toDto)
+                .map(it -> scheduleMapper.toDto(it, locale))
                 .toList();
         setTeacherName(schedules);
         return ApiResponse.setSuccess(schedules);
@@ -262,7 +267,7 @@ public class ScheduleService implements IScheduleService {
         log.debug("Finding schedules by classroom: {} and day: {}", classroomId, dayOfWeek);
         List<Schedule> schedules = scheduleRepository.findByClassroomIdAndDayOfWeekAndActiveTrue(
                 classroomId, dayOfWeek);
-        var scheduleResponses = scheduleMapper.toDtoList(schedules);
+        var scheduleResponses = scheduleMapper.toDtoList(schedules, LocaleContextHolder.getLocale());
         setTeacherName(scheduleResponses);
         return ApiResponse.setSuccess(scheduleResponses);
     }
@@ -272,7 +277,7 @@ public class ScheduleService implements IScheduleService {
         log.debug("Finding schedules by teacher: {} and day: {}", teacherId, dayOfWeek);
         List<Schedule> schedules = scheduleRepository.findByTeacherIdAndDayOfWeekAndActiveTrue(
                 teacherId, dayOfWeek);
-        var scheduleResponses = scheduleMapper.toDtoList(schedules);
+        var scheduleResponses = scheduleMapper.toDtoList(schedules, LocaleContextHolder.getLocale());
         setTeacherName(scheduleResponses);
         return ApiResponse.setSuccess(scheduleResponses);
     }
@@ -281,7 +286,7 @@ public class ScheduleService implements IScheduleService {
     public ApiResponse<List<ScheduleResponse>> findByAcademicYear(String academicYear) {
         log.debug("Finding schedules by academic year: {}", academicYear);
         List<Schedule> schedules = scheduleRepository.findByAcademicYearAndActiveTrue(academicYear);
-        var scheduleResponses = scheduleMapper.toDtoList(schedules);
+        var scheduleResponses = scheduleMapper.toDtoList(schedules, LocaleContextHolder.getLocale());
         setTeacherName(scheduleResponses);
         return ApiResponse.setSuccess(scheduleResponses);
     }

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
-public class FCMFailedTokenEvent {
+public class FCMBatchFailedEvent {
 
     private List<String> tokens;
 

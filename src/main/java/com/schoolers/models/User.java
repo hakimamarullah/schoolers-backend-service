@@ -57,4 +57,7 @@ public class User extends BaseEntity {
 
     private LocalDateTime lastLoginAt;
 
+    @Column(length = 5, nullable = false)
+    private String locale = "en";
+
 }

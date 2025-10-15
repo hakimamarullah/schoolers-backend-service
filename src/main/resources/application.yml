@@ -12,7 +12,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   cloud:
     config:
-      enabled: false
+      enabled: true
     refresh:
       enabled: false
   application:
@@ -60,16 +60,14 @@ jwt:
   issuer: schoolers.com
   expiration-millis: 3600000
   public:
-    key: |
-      {PUBLIC_KEY}
+    key: {PUBLIC_KEY}
   private:
-    key: |
-      {PRIVATE_KEY}
+    key: {PRIVATE_KEY}
 
 security:
-  max-failed-attempts: 5
-  lock-duration-minutes: 30
-  challenge-expiration-minutes: 5
+  max-failed-attempts: ${SECURITY_MAX_FAILED_ATTEMPT:3}
+  lock-duration-minutes: ${SECURITY_LOCK_DURATION_MINUTES:30}
+  challenge-expiration-minutes: ${SECURITY_CHALLENGE_EXPIRATION_MINUTES:1}
 
 
 cors:
@@ -80,8 +78,21 @@ school:
 
 
 crypto:
-  secret-key: jbVMV1eF20zR0Mj536rCCObLa5NGDiFf
+  secret-key: {CRYPTO_SECRET_KEY}
 
 scheduler:
-  learning-session-cron: "0 0 3 * * *" # every day at 3 AM
+  learning-session-cron: "0 0 3 * * *"
+
+firebase:
+  type: {FIREBASE_TYPE:service_account}
+  project-id: {FIREBASE_PROJECT_ID}
+  private-key-id: {FIREBASE_PRIVATE_KEY_ID}
+  private-key: {FIREBASE_PRIVATE_KEY}
+  client-email: {FIREBASE_CLIENT_EMAIL}
+  client-id: {FIREBASE_CLIENT_ID}
+  auth-uri: {FIREBASE_AUTH_URI:-https://accounts.google.com/o/oauth2/auth}
+  token-uri: {FIREBASE_TOKEN_URI:-https://oauth2.googleapis.com/token}
+  auth-provider-x509-cert-url: {FIREBASE_AUTH_PROVIDER_X509_CERT_URL:-https://www.googleapis.com/oauth2/v1/certs}
+  client-x509-cert-url: {FIREBASE_CLIENT_X509_CERT_URL:-https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40schoolers-4e844.iam.gserviceaccount.com}
+  universe-domain: {FIREBASE_UNIVERSE_DOMAIN:googleapis.com}
 

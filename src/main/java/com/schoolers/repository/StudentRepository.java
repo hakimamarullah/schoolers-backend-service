@@ -22,8 +22,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
             " WHERE s.studentNumber = :studentNumber")
     int updateStudentById(String studentNumber, Long classroomId);
 
-    long countByClassroomId(Long classroomId);
-
     Optional<Student> findByStudentNumber(String studentNumber);
 
     @Query("SELECT s.id FROM Student s WHERE s.classroom.id = :classroomId")
@@ -32,6 +30,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Query("SELECT DISTINCT s.user.id FROM Student s WHERE s.classroom.id IN :classroomIds")
     Set<Long> getUserIdByClassroomIdIn(Set<Long> classroomIds);
 
-    @Query("SELECT DISTINCT s.user.id FROM Student s WHERE s.classroom.id = :classroomId")
-    Set<Long> getUserIdByClassroomId(Long classroomId);
+    @Query("SELECT s.classroom.id FROM Student s WHERE s.studentNumber = :studentNumber")
+    long getClassroomIdByStudentNumber(String studentNumber);
 }

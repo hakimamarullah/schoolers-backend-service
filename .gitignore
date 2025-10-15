@@ -34,3 +34,7 @@ build/
 /logs/
 /src/main/resources/application-local.yml
 /uploads/
+/docker/certs/
+/docker/logs/
+/docker/.env
+/.env

@@ -7,7 +7,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.TopicManagementResponse;
-import com.schoolers.dto.event.FCMFailedTokenEvent;
+import com.schoolers.dto.event.FCMBatchFailedEvent;
 import com.schoolers.dto.request.SendNotificationRequest;
 import com.schoolers.repository.DeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 @RegisterReflectionForBinding({
         SendNotificationRequest.class,
-        FCMFailedTokenEvent.class,
+        FCMBatchFailedEvent.class,
         Message.class,
         MulticastMessage.class,
         Notification.class,
@@ -95,7 +95,7 @@ public class FCMService {
 
         // Handle failed tokens
         if (response.getFailureCount() > 0) {
-            eventPublisher.publishEvent(FCMFailedTokenEvent.builder()
+            eventPublisher.publishEvent(FCMBatchFailedEvent.builder()
                     .batchResponse(response)
                     .tokens(tokens)
                     .build());

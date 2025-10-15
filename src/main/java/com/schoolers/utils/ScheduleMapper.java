@@ -4,13 +4,14 @@ import com.schoolers.dto.response.ScheduleResponse;
 import com.schoolers.models.Schedule;
 import org.springframework.stereotype.Component;
 
+import java.time.format.TextStyle;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 @Component
 public class ScheduleMapper {
 
-    public ScheduleResponse toDto(Schedule schedule) {
+    public ScheduleResponse toDto(Schedule schedule, Locale locale) {
         if (schedule == null) {
             return null;
         }
@@ -22,7 +23,8 @@ public class ScheduleMapper {
                 .subjectId(schedule.getSubject().getId())
                 .subjectName(schedule.getSubject().getName())
                 .teacherId(schedule.getTeacher().getId())
-                .dayOfWeek(schedule.getDayOfWeek())
+                .dayOfWeek(schedule.getDayOfWeek().name())
+                .displayDay(schedule.getDayOfWeek().getDisplayName(TextStyle.FULL, locale))
                 .startTime(schedule.getStartTime())
                 .endTime(schedule.getEndTime())
                 .academicYear(schedule.getAcademicYear())
@@ -32,13 +34,13 @@ public class ScheduleMapper {
                 .build();
     }
 
-    public List<ScheduleResponse> toDtoList(List<Schedule> schedules) {
+    public List<ScheduleResponse> toDtoList(List<Schedule> schedules, Locale locale) {
         if (schedules == null) {
             return List.of();
         }
 
-        return schedules.stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        return schedules.parallelStream()
+                .map(it -> toDto(it, locale))
+                .toList();
     }
 }

@@ -1,7 +1,6 @@
 package com.schoolers.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.schoolers.enums.DayOfWeek;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +22,8 @@ public class ScheduleResponse {
     private String subjectName;
     private Long teacherId;
     private String teacherName;
-    private DayOfWeek dayOfWeek;
+    private String dayOfWeek;
+    private String displayDay;
 
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
