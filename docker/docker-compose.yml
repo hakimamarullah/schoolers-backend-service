@@ -1,92 +1,28 @@
 services:
-  schoolers-service:
-    image: ${DOCKER_IMAGE:-hakimamarullah/schoolers-service-backend:v1.0.0}
-    container_name: schooler-svc
+  schoolers-svc:
+    image: hakimamarullah/schoolers-service-backend:latest
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 20
+        window: 120s
     ports:
-      - "${APP_PORT:-8080}:8080"
+      - "8080:8080"
     volumes:
       - ./logs:/opt/app/logs
-      - ./certs:/opt/app/logs/certs:ro
+      - ./uploads:/opt/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 3s
+      timeout: 10s
+      retries: 20
     environment:
-      # Spring Configuration
-      - SPRING_APPLICATION_NAME=${SPRING_APPLICATION_NAME}
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-default}
-
-      # Database Configuration
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=${HIBERNATE_DDL_AUTO:-update}
-      - SPRING_JPA_SHOW_SQL=${SHOW_SQL:-false}
-
-      # Multipart Configuration
-      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=${MAX_FILE_SIZE:-10MB}
-      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=${MAX_REQUEST_SIZE:-10MB}
-
-      # JWT Configuration
-      - JWT_ISSUER=${JWT_ISSUER}
-      - JWT_EXPIRATION_MILLIS=${JWT_EXPIRATION_MILLIS}
-      - JWT_AUDIENCE=${JWT_AUDIENCE}
-      - JWT_PUBLIC_KEY=file:${JWT_PUBLIC_KEY_PATH}
-      - JWT_PRIVATE_KEY=file:${JWT_PRIVATE_KEY_PATH}
-
-      # Security Configuration
-      - SECURITY_MAX_FAILED_ATTEMPTS=${SECURITY_MAX_FAILED_ATTEMPTS}
-      - SECURITY_LOCK_DURATION_MINUTES=${SECURITY_LOCK_DURATION_MINUTES}
-      - SECURITY_CHALLENGE_EXPIRATION_MINUTES=${SECURITY_CHALLENGE_EXPIRATION_MINUTES}
-
-      # CORS Configuration
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
-
-      # School Configuration
-      - SCHOOL_NAME=${SCHOOL_NAME}
-
-      # Crypto Configuration
-      - CRYPTO_SECRET_KEY=${CRYPTO_SECRET_KEY}
-
-      # Scheduler Configuration
-      - SCHEDULER_LEARNING_SESSION_CRON=${SCHEDULER_LEARNING_SESSION_CRON}
-
-      # Firebase Configuration
-      - FIREBASE_TYPE=${FIREBASE_TYPE}
-      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
-      - FIREBASE_PRIVATE_KEY_ID=${FIREBASE_PRIVATE_KEY_ID}
-      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
-      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
-      - FIREBASE_CLIENT_ID=${FIREBASE_CLIENT_ID}
-      - FIREBASE_AUTH_URI=${FIREBASE_AUTH_URI}
-      - FIREBASE_TOKEN_URI=${FIREBASE_TOKEN_URI}
-      - FIREBASE_AUTH_PROVIDER_X509_CERT_URL=${FIREBASE_AUTH_PROVIDER_X509_CERT_URL}
-      - FIREBASE_CLIENT_X509_CERT_URL=${FIREBASE_CLIENT_X509_CERT_URL}
-      - FIREBASE_UNIVERSE_DOMAIN=${FIREBASE_UNIVERSE_DOMAIN}
-
-      # OpenTelemetry Configuration
-      - OTEL_TRACES_EXPORTER=${OTEL_TRACES_EXPORTER:-none}
-      - OTEL_METRICS_EXPORTER=${OTEL_METRICS_EXPORTER:-none}
-      - OTEL_LOGS_EXPORTER=${OTEL_LOGS_EXPORTER:-console}
-
-      # Management/Tracing Configuration
-      - MANAGEMENT_TRACING_ENABLED=${MANAGEMENT_TRACING_ENABLED:-true}
-      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=${MANAGEMENT_TRACING_SAMPLING_PROBABILITY:-1.0}
-
-      # Spring Cloud Config (Optional)
-      - SPRING_CLOUD_CONFIG_URI=${SPRING_CLOUD_CONFIG_URI:-http://localhost:8888}
-
-      # Java Options
-      - JAVA_OPTS=${JAVA_OPTS:--Xmx512m -Xms256m}
+      - JAVA_OPTS=-Dspring.profiles.active=prod
       - LOG_FILE_PATH=/opt/app/logs
-
-    restart: unless-stopped
+      - SPRING_CLOUD_CONFIG_URI=http://host.docker.internal:9090
     networks:
       - schoolers-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-
-
 
 networks:
   schoolers-network:
