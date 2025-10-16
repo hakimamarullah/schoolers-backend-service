@@ -4,4 +4,6 @@ public interface UserToken {
 
     Long getOwnerId();
     String getToken();
+
+    String getLocale();
 }

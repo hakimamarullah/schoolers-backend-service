@@ -48,4 +48,14 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
     List<UserToken> getUserTokenByStudentIdIn(Set<Long> studentIds);
 
 
+    @Query("""
+    SELECT u.locale as locale, dt.token as token
+    FROM Student s
+    LEFT JOIN s.user u
+    LEFT JOIN DeviceToken dt ON dt.user = u
+    WHERE s.classroom.id = :classroomId AND dt.active = true AND dt.token is not null
+    """)
+    List<UserToken> getAllTokenByClassroomId(Long classroomId);
+
+
 }

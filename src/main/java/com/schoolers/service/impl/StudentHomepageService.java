@@ -88,13 +88,13 @@ public class StudentHomepageService implements IStudentHomePageService {
 
             if (session.getStatus() == SessionStatus.CANCELLED) {
                 cancelled.add(card);
-            } else if (isSessionOngoing(session, currentTime, targetDate)) {
+            } else if (isSessionOngoing(session, targetDate)) {
                 ongoing.add(card);
+            } else if (isSessionUpcoming(session, currentTime, targetDate)) {
+                upcoming.add(card);
             } else if (isSessionFinished(session, currentTime, targetDate)) {
                 finishedCount++;
                 finished.add(card);
-            } else if (isSessionUpcoming(session, currentTime, targetDate)) {
-                upcoming.add(card);
             }
         }
 
@@ -201,36 +201,31 @@ public class StudentHomepageService implements IStudentHomePageService {
                 .build();
     }
 
-    private boolean isSessionOngoing(AttendanceSession session, LocalTime currentTime, LocalDate targetDate) {
-        if (SessionStatus.ONGOING.equals(session.getStatus())) {
-            return true;
-        }
-        if (!session.getSessionDate().equals(targetDate)) {
-            return false;
-        }
-        return !currentTime.isBefore(session.getStartTime()) &&
-                !currentTime.isAfter(session.getEndTime());
+    private boolean isSessionOngoing(AttendanceSession session, LocalDate targetDate) {
+        return session.getSessionDate().equals(targetDate)
+                && session.getStatus().equals(SessionStatus.ONGOING);
     }
 
     private boolean isSessionUpcoming(AttendanceSession session, LocalTime currentTime, LocalDate targetDate) {
-        if (session.getSessionDate().isAfter(targetDate)) {
-            return true;
+        if (!session.getSessionDate().equals(targetDate)) {
+            return false;
         }
-        if (session.getSessionDate().equals(targetDate)) {
-            return currentTime.isBefore(session.getStartTime());
-        }
-        return false;
+
+        return currentTime.isBefore(session.getStartTime())
+               && currentTime.isBefore(session.getEndTime())
+               && session.getStatus().equals(SessionStatus.SCHEDULED);
     }
 
     private boolean isSessionFinished(AttendanceSession session, LocalTime currentTime, LocalDate targetDate) {
-        if (SessionStatus.COMPLETED.equals(session.getStatus())) {
-            return true;
-        }
         if (session.getSessionDate().isBefore(targetDate)) {
             return true;
         }
+        if (session.getStatus().equals(SessionStatus.COMPLETED)) {
+            return true;
+        }
         if (session.getSessionDate().equals(targetDate)) {
-            return currentTime.isAfter(session.getEndTime());
+            return currentTime.isAfter(session.getEndTime()) &&
+                   !SessionStatus.ONGOING.equals(session.getStatus());
         }
         return false;
     }

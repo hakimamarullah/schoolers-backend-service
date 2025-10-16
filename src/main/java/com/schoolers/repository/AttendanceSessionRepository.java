@@ -1,5 +1,6 @@
 package com.schoolers.repository;
 
+import com.schoolers.dto.projection.AttendanceSessionInfo;
 import com.schoolers.dto.projection.SimpleAttendanceSessionInfo;
 import com.schoolers.enums.SessionStatus;
 import com.schoolers.models.AttendanceSession;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface AttendanceSessionRepository extends JpaRepository<AttendanceSession, Long> {
 
@@ -47,5 +49,11 @@ public interface AttendanceSessionRepository extends JpaRepository<AttendanceSes
     List<SimpleAttendanceSessionInfo> getAllByStatusAndClassroomIdAndSessionDate(@Param("status") SessionStatus status,
                                                                                  @Param("classroomId") Long classroomId,
                                                                                  @Param("date") LocalDate date);
+
+    Optional<AttendanceSession> findByScheduleIdAndTeacherEmployeeNumberAndSessionDateEquals(Long scheduleId, String teacherEmployeeNumber,
+                                                                                             LocalDate sessionDate);
+
+    @Query("SELECT a.classroom.id as classroomId, a.subject.name as subjectName from AttendanceSession a where a.id = :id")
+    Optional<AttendanceSessionInfo> getSessionInfoById(Long id);
 
 }
