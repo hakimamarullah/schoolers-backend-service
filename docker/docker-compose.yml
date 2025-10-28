@@ -1,6 +1,7 @@
 services:
   schoolers-svc:
     image: hakimamarullah/schoolers-service-backend:latest
+    pull_policy: always
     deploy:
       restart_policy:
         condition: on-failure

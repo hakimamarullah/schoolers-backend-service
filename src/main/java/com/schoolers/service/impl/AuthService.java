@@ -296,7 +296,7 @@ public class AuthService implements IAuthService {
         log.info("User {} logged in successfully via BIOMETRIC", user.getLoginId());
 
         return ApiResponse.setSuccess(createAuthResponse(user, AuthMethod.BIOMETRIC, credential,
-                request.getDeviceId(), null, request.getClientIp(), request.getUserAgent()));
+                request.getDeviceId(), request.getDeviceName(), request.getClientIp(), request.getUserAgent()));
     }
 
     @Transactional

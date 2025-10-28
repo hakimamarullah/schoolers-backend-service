@@ -18,4 +18,6 @@ public class BiometricAuthCompleteRequest extends BaseRequest {
 
     @NotBlank(message = "Device ID is required")
     private String deviceId;
+
+    private String deviceName;
 }
