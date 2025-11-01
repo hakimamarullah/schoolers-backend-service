@@ -11,5 +11,6 @@ public class MenuItemResponse {
     private String title;
     private String route;
     private String iconName;
+    private String badgeText;
     private Boolean isEnabled;
 }

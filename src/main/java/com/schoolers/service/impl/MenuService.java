@@ -83,6 +83,7 @@ public class MenuService implements IMenuService {
                         .title(it.getTitle())
                         .id(it.getId())
                         .iconName(it.getIcon())
+                        .badgeText(it.getBadgeText())
                         .build()
 
                 )

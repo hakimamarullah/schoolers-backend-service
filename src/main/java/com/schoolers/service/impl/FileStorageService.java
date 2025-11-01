@@ -44,13 +44,10 @@ public class FileStorageService implements IFileStorageService {
     }
 
 
-
     private String storeFile(MultipartFile file, String subDirectory, String identifier) {
         try {
-            Path uploadPath = Paths.get(uploadDir, subDirectory);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(subDirectory);
+            Files.createDirectories(uploadPath);
 
             String originalFilename = file.getOriginalFilename();
             String extension = fileValidator.getFileExtension(originalFilename);
@@ -59,10 +56,11 @@ public class FileStorageService implements IFileStorageService {
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            String url = uploadDir + "/" + subDirectory + "/" + filename;
-            log.info("File stored: {}", url);
 
-            return url;
+            String publicUrl = String.format("/uploads/%s/%s", subDirectory, filename);
+
+            log.info("File stored: {} -> {}", filePath, publicUrl);
+            return publicUrl;
 
         } catch (IOException e) {
             log.error("Failed to store file", e);

@@ -28,7 +28,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -59,9 +61,9 @@ public class SecurityConfig {
 
 
 
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final AccessDeniedHandler customAccessDeniedHandler;
 
     @Value("${jwt.public.key}")
     private RSAPublicKey rsaPublicKey;
