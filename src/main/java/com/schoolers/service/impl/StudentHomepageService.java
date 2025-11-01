@@ -18,6 +18,7 @@ import com.schoolers.repository.StudentAttendanceRepository;
 import com.schoolers.repository.StudentRepository;
 import com.schoolers.repository.TeacherRepository;
 import com.schoolers.service.ILocalizationService;
+import com.schoolers.service.IMenuService;
 import com.schoolers.service.IStudentHomePageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,11 +50,13 @@ import java.util.stream.Collectors;
 public class StudentHomepageService implements IStudentHomePageService {
 
 
+    public static final String MAIN_MENU_CAT_NAME = "Main Menu";
     private final StudentRepository studentRepository;
     private final AttendanceSessionRepository sessionRepository;
     private final StudentAttendanceRepository attendanceRepository;
     private final TeacherRepository teacherRepository;
     private final ILocalizationService localizationService;
+    private final IMenuService menuService;
 
     @Override
     @Transactional(readOnly = true)
@@ -111,6 +114,7 @@ public class StudentHomepageService implements IStudentHomePageService {
                 .upcomingSessions(upcoming)
                 .cancelledSessions(cancelled)
                 .finishedSessions(finished)
+                .mainMenuItems(menuService.getMenuItemsByCatName(MAIN_MENU_CAT_NAME))
                 .build();
 
         return ApiResponse.setSuccess(response);
