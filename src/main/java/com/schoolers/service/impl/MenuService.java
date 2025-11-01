@@ -99,6 +99,7 @@ public class MenuService implements IMenuService {
                 .route(menuItem.getTarget())
                 .iconName(menuItem.getIcon())
                 .isEnabled(menuItem.isEnabled())
+                .badgeText(menuItem.getBadgeText())
                 .build();
     }
 }
