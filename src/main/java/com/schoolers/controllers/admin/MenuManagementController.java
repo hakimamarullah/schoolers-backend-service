@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @RolesAllowed({"OFFICE_ADMIN"})
 @SecurityRequirement(name = "bearerJWT")
+@RegisterReflectionForBinding({
+        BatchRequestWrapper.class
+})
 public class MenuManagementController {
 
     private final IMenuService menuService;

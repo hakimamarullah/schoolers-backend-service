@@ -12,6 +12,7 @@ import com.schoolers.repository.MenuItemRepository;
 import com.schoolers.service.IMenuService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,13 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@RegisterReflectionForBinding({
+        MenuItem.class,
+        MenuItemResponse.class,
+        MenuCatResponse.class,
+        CreateMenuItemRequest.class,
+        CreateMenuCategoryRequest.class,
+})
 public class MenuService implements IMenuService {
 
     private final MenuItemRepository menuItemRepository;
