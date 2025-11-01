@@ -38,3 +38,4 @@ build/
 /docker/logs/
 /docker/.env
 /.env
+/docker/uploads/

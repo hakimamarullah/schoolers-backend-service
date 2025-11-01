@@ -59,7 +59,7 @@ public class FileStorageService implements IFileStorageService {
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            String url = "/" + uploadDir + "/" + subDirectory + "/" + filename;
+            String url = uploadDir + "/" + subDirectory + "/" + filename;
             log.info("File stored: {}", url);
 
             return url;

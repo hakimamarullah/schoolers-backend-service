@@ -17,10 +17,12 @@ RUN ./mvnw clean install -Pnative -DskipTests
 FROM debian:bookworm-slim
 
 ENV LOG_DIR=/opt/app/logs
+ENV UPLOADS_DIR=/opt/app/uploads
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
     groupadd -r spring && useradd -r -g spring spring && \
-    mkdir -p "$LOG_DIR" && chown -R spring:spring "$LOG_DIR"
+    mkdir -p "$LOG_DIR" && chown -R spring:spring "$LOG_DIR" && \
+    mkdir -p "$UPLOADS_DIR" && chown -R spring:spring "$UPLOADS_DIR"
 
 
 COPY --from=builder --chown=spring:spring /opt/app/target/schoolers-service /opt/app/schoolers-service
